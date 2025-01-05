@@ -1,11 +1,7 @@
-#config.py
-# region imports <- This is foldable
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
-from discord import Activity, ActivityType
-import datetime, time
 from pymongo import MongoClient
 
 
@@ -13,11 +9,9 @@ from pymongo import MongoClient
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
-mongo_username = os.getenv("MONGO_USERNAME")
-mongo_password = os.getenv("MONGO_PASSWORD")
 
-uri = f"mongodb+srv://{mongo_username}:{mongo_password}@cluster0.7aptm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-mongo_client = MongoClient(uri)
+mongo_uri = os.getenv("MONGO_CONNECTION")
+mongo_client = MongoClient(mongo_uri)
 database = mongo_client["Level_Database"]
 
 exts = [

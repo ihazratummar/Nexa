@@ -9,8 +9,6 @@ import os
 
 load_dotenv()
 
-
-
 class Utility(commands.Cog):
     def __init__(self, bot : Bot):
         self.bot = bot
