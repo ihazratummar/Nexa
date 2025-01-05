@@ -28,7 +28,7 @@ class Notification(commands.Cog):
         if response.status_code == 200:
             return response.json()
         else:
-            logging.error(f"Failed to fetch followers: {response.status_code}")
+            logging.error(f"Failed to fetch followers: {response.status_code}, Response: {response.text}")
             return []
 
     def load_followers(self):
