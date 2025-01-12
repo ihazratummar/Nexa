@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands, tasks
-from config import Bot
+from bot.config import Bot
 from dotenv import load_dotenv
 import os
 import requests

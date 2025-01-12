@@ -1,10 +1,8 @@
 from builtins import int
 import discord
 from discord.ext import commands
-from asyncpg import Record
-from config import Bot
+from bot.config import Bot
 from discord import app_commands , File
-from pymongo.errors import DuplicateKeyError
 from easy_pil import Canvas, Editor, font , load_image_async
 from PIL import Image
 
@@ -55,7 +53,7 @@ class Level(commands.Cog):
             (3500, 35),
             (4000, 40),
         ]
-        
+
         # Determine the user's level based on their XP
         for threshold, level in level_thresholds:
             if xp >= threshold and current_level < level:
@@ -97,7 +95,7 @@ class Level(commands.Cog):
             previous_level_xp = self.get_next_level_xp(level - 1) if level > 0 else 0
             progress = ((xp - previous_level_xp) / (next_level_xp - previous_level_xp)) * 100
 
-            background = Image.open("Bot/cogs/Rewards/assests/galaxy.jpg")
+            background = Image.open("root/cogs/Rewards/assests/galaxy.jpg")
 
             image = Editor(background).resize((740, 260))
             user_name_font = font.Font.poppins(variant = 'bold', size = 30)

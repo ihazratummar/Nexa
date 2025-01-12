@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from config import Bot
+from bot.config import Bot
 import requests
 import random
 import json
@@ -126,7 +126,7 @@ class Media_Commands(commands.Cog):
                     video_data = await resp.read()
 
             # Define the custom directory path
-            custom_directory = "Bot/cogs/temp_videos"
+            custom_directory = "root/cogs/temp_videos"
 
             # Ensure the custom directory exists
             os.makedirs(custom_directory, exist_ok=True)

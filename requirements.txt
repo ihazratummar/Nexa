@@ -10,3 +10,4 @@ pymongo
 asyncpg
 easy-pil
 pillow
+pilmoji

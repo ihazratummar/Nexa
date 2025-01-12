@@ -15,18 +15,17 @@ mongo_client = MongoClient(mongo_uri)
 database = mongo_client["Level_Database"]
 
 exts = [
-    "cogs.error",
-    "cogs.general",
-    "cogs.fun_commands",
-    "cogs.media_commands",
-    "cogs.games",
-    "cogs.welcomer",
-    "cogs.Rewards.level",
-    # "cogs.Rewards.economy",
-    "cogs.Automod.automod",
-    "cogs.Utility.utility_commands",
-    "cogs.notification",
-    "cogs.logs"
+    "bot.cogs.error",
+    "bot.cogs.general",
+    "bot.cogs.fun_commands",
+    "bot.cogs.media_commands",
+    "bot.cogs.games",
+    "bot.cogs.welcomer",
+    "bot.cogs.Rewards.level",
+    "bot.cogs.Automod.automod",
+    "bot.cogs.Utility.utility_commands",
+    "bot.cogs.notification",
+    "bot.cogs.logs"
 ]
 
 
@@ -50,8 +49,3 @@ class Bot(commands.Bot):
         await self.change_presence(
             activity=discord.Game(name="Moderating CrazyForSurprise")
         )
-
-
-if __name__ == "__main__":
-    bot = Bot(command_prefix=".", intents=discord.Intents.all(), database=database, help_command = None)
-    bot.run(token)

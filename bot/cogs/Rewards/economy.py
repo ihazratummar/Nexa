@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from asyncpg import Record
-from config import Bot
+from bot.config import Bot
 from typing import Dict
 import json
 import os
@@ -18,7 +18,7 @@ class Economy(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.currency_icon = "💰"
-        self.user_balances_file = "Bot/cogs/Rewards/user_balances.json"
+        self.user_balances_file = "cogs/Rewards/user_balances.json"
 
     async def load_user_balances(self):
         if os.path.exists(self.user_balances_file):

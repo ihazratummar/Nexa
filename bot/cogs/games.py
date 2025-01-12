@@ -1,13 +1,11 @@
 import random
-import discord
-import config
-from discord import app_commands
+from bot.config import Bot
 from discord.ext import commands
 import asyncio
 
 
 class Games(commands.Cog):
-    def __init__(self, bot: config.Bot):
+    def __init__(self, bot: Bot):
         self.bot = bot
 
     @commands.hybrid_command(name="guess_number", description="Guess the number")
@@ -54,7 +52,7 @@ class Games(commands.Cog):
         if random_side == 1:
             await interaction.send("Head")
         else:
-            await interaction.response.send_message("Tail")
+            await interaction.send("Tail")
 
 
 async def setup(bot: commands.Bot):
