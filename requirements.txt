@@ -11,3 +11,4 @@ asyncpg
 easy-pil
 pillow
 pilmoji
+pytz
