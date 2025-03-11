@@ -62,37 +62,6 @@ class General(commands.Cog):
         url = "https://www.youtube.com" + html[index : index + 20]
         await interaction.send(url)
 
-    @tasks.loop(seconds=40)
-    async def weekly_task(self):
-        target_day = 0  # 0 = Monday, 1 = Tuesday, ..., 6 = Sunday
-        target_time = time(hour=16, minute=59)
-        local_tz = timezone("Asia/Kolkata")  # Replace with your local timezone
-
-        now = datetime.now(local_tz)
-        now_time = now.time()
-
-        if now.weekday() == target_day and now_time.hour == target_time.hour and now_time.minute == target_time.minute:
-            print("Condition met!")
-            channel = self.bot.get_channel(875192296264593458)
-            if channel:
-                await channel.send("It's time!")
-            else:
-                print("Channel not found.")
-
-            next_target_datetime = times.get_next_week_day(now, target_day, target_time, local_tz)
-            time_difference = (next_target_datetime - now).total_seconds()-100
-            print(f"Next target occurrence: {next_target_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
-            print(f"Sleeping for {time_difference} seconds...")
-            # Sleep until the next target time
-            await asyncio.sleep(time_difference)
-        else:
-            print(
-                f"Condition not met: Now - {now.strftime('%Y-%m-%d %H:%M:%S')}, Target Day - {target_day}, Target Time - {target_time}")
-
-    @weekly_task.before_loop
-    async def before_weekly_task(self):
-        await self.bot.wait_until_ready()
-
 
 
 async def setup(bot: commands.Bot):
