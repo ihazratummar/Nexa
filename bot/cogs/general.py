@@ -19,7 +19,6 @@ WEATHER_API = os.getenv("WEATHER_API")
 class General(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-        self.weekly_task.start()
 
     @commands.hybrid_command()
     @app_commands.checks.cooldown(1, 10, key=lambda i: i.user.id)
