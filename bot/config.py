@@ -47,5 +47,5 @@ class Bot(commands.Bot):
         print("Bot is ready.")
 
         await self.change_presence(
-            activity=discord.Game(name="Moderating CrazyForSurprise")
+            activity=discord.Game(name="Moderating Code Circle")
         )
