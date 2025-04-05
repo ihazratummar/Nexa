@@ -95,7 +95,7 @@ class Level(commands.Cog):
             previous_level_xp = self.get_next_level_xp(level - 1) if level > 0 else 0
             progress = ((xp - previous_level_xp) / (next_level_xp - previous_level_xp)) * 100
 
-            background = Image.open("root/cogs/Rewards/assests/galaxy.jpg")
+            background = Image.open("Bot/cogs/Rewards/assests/galaxy.jpg")
 
             image = Editor(background).resize((740, 260))
             user_name_font = font.Font.poppins(variant = 'bold', size = 30)

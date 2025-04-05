@@ -22,6 +22,7 @@ exts = [
     "bot.cogs.games",
     "bot.cogs.welcomer",
     "bot.cogs.Rewards.level",
+    "bot.cogs.Rewards.economy",
     "bot.cogs.Automod.automod",
     "bot.cogs.Utility.utility_commands",
     "bot.cogs.notification",
