@@ -1,24 +1,61 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from bot.config import Bot
 from dotenv import load_dotenv
 import asyncio
 import requests
 import random
 import os
+from datetime import datetime, timedelta
+import parsedatetime
+import openai
+from bot.core.constant import Color
+
 
 load_dotenv()
+
+cal = parsedatetime.Calendar()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=OPENAI_API_KEY)
+
 
 class Utility(commands.Cog):
     def __init__(self, bot : Bot):
         self.bot = bot
+        self.db = self.bot.mongo_client["User_Database"]
+        self.collection = self.db["Reminders"]
+        self.check_reminders.start()
+        self.check_event.start()
+        self.last_seen_collection = self.db["LastSeen"]
+        self.event_collection = self.db["ScheduledEvents"]
+
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+
+        data = {
+            "user_id": message.author.id,
+            "channel_id" : message.channel.id,
+            "last_seen": datetime.now()
+        }
+
+        self.last_seen_collection.update_one(
+            {"user_id": message.author.id},
+            {"$set": data},
+            upsert=True
+        )
+
+        await self.bot.process_commands(message)
 
     @commands.hybrid_command(name="help", description= "Get all the commands list")
     async def help(self, interaction: commands.Context):
         embed = discord.Embed(
             title= "Help",
             description= "List of commands all the commands",
-            color= 0x00FFFF
+            color= discord.Color.from_str(Color.PRIMARY_COLOR)
         )
 
         for c in self.bot.cogs:
@@ -107,55 +144,56 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.hybrid_command(name="reminder", case_insensitive=True, aliases=['reminde', 'remindme'])
-    async def reminder(self, ctx: commands.Context, time, *, reminder: str = None):
 
-        embed = discord.Embed(title=f"Reminder for {ctx.author.name}", description="", color=0x00FFFF)
-        seconds = 0
+    @commands.hybrid_command(name="remider", description="Set a reminder")
+    async def reminder(self, ctx: commands.Context, *, message: str):
+        time_struct , parse_status = cal.parse(message)
 
-        if reminder is None:
-            embed.add_field(name="Warning", value="Your reminder message is empty!")
-            await ctx.send(embed=embed)
+        if parse_status == 0:
+            await ctx.send("I couldn't understand the time format. Please use a valid format.")
             return
-
-        try:
-            if time.lower().endswith("d"):
-                seconds += int(time[:-1]) * 60 * 60 * 24
-                counter = f"{seconds // 60 // 60 // 24} days"
-            elif time.lower().endswith("h"):
-                seconds += int(time[:-1]) * 60 * 60
-                counter = f"{seconds // 60 // 60} hours"
-            elif time.lower().endswith("m"):
-                seconds += int(time[:-1]) * 60
-                counter = f"{seconds // 60} minutes"
-            elif time.lower().endswith("s"):
-                seconds += int(time[:-1])
-                counter = f"{seconds} seconds"
-            else:
-                embed.add_field(name="Error", value="> **Invalid time format**! Please use `'1d'` for days, `'1h'` for hours, `'1m'` for minutes, or `'1s'` for seconds.")
-                await ctx.send(embed=embed, ephemeral=True)
-                return
-
-            if seconds == 0:
-                embed.add_field(name="Warning", value="Please provide a proper duration.")
-            elif seconds < 5:
-                embed.add_field(name="Warning", value="Duration is too short. Minimum is 5 seconds.")
-            elif seconds > 7776000:  # 90 days
-                embed.add_field(name="Warning", value="Duration is too long. Maximum is 90 days.")
-            else:
-                embed.add_field(name="Reminder Created",value=f"> Alright, I will remind you about {reminder} in {counter}.")
-                await ctx.send(embed=embed)
-                await asyncio.sleep(seconds)
-                reminder_embed = discord.Embed(title=f"Reminder for {ctx.author.name}", color=0x00FFFF)
-                reminder_embed.add_field(name="Reminder",value=f"Hi{ctx.author.mention}, you asked me to remind you about {reminder} {counter} ago.")
-                await ctx.send( f"{ctx.author.mention}" ,embed=reminder_embed)
-                return
-
-        except ValueError:
-            embed.add_field(name="Error", value="> **Invalid time format**! Please provide a valid number. Ex:`'1d'`, `'1h'`, `'1m'`, or `'1s'`.")
         
-        await ctx.send(embed=embed, ephemeral=True)
+        reminder_time = datetime(*time_struct[:6])
+        print(reminder_time)
+        now = datetime.now()
 
+        if reminder_time < now:
+            await ctx.send("The reminder time must be in the future.")
+            return
+        
+        reminder = {
+            "user_id": ctx.author.id,
+            "channel_id": ctx.channel.id,
+            "message": message,
+            "reminder_at": reminder_time,
+            "created_at": now
+        }
+        await ctx.send(f"✅ Reminder set for <t:{int(reminder_time.timestamp())}:R>!")
+        if (reminder_time - now).total_seconds() < 30:
+            await asyncio.sleep((reminder_time - now).total_seconds())
+            await ctx.send(f"⏰ Hey {ctx.author.mention}, reminder: **{message}**")
+        else:
+            self.collection.insert_one(reminder)
+
+        
+        
+    @tasks.loop(seconds=30)
+    async def check_reminders(self):
+        now = datetime.now()
+        due_reminders = list(self.collection.find({"reminder_at": {"$lte": now}}))
+
+        for reminder in due_reminders:
+            user = await self.bot.fetch_user(reminder["user_id"])
+            channel = self.bot.get_channel(reminder["channel_id"])
+            
+            # Fallback in case channel is not found
+            if not channel:
+                channel = await user.create_dm()
+
+            await channel.send(
+                f"⏰ Hey {user.mention}, reminder: **{reminder['message']}**"
+            )
+            self.collection.delete_one({"_id": reminder["_id"]})
 
     @commands.hybrid_command(name="quota", description="Display quota")
     async def quota(self, interaction: commands.Context):
@@ -277,6 +315,141 @@ class Utility(commands.Cog):
                 await ctx.send(f"No antonyms found for '{word}'.")
         else:
             await ctx.send(f"Error: {response.status_code}")
+
+
+    @commands.hybrid_command(name="summarize", description="Summarize discord channel text")
+    @commands.cooldown(1, 600,  commands.BucketType.user)
+    async def summarize(self, ctx: commands.Context, limit: int = 20):
+        if limit > 50:
+            await ctx.send("Limit should be less than 50")
+            return
+        
+        await ctx.defer()
+
+        messages = [msg async for msg in ctx.channel.history(limit=limit)]
+        messages = list(reversed(messages))  # Oldest to newest
+        content = "\n".join([
+            f"{msg.author.display_name}: {msg.content}" 
+            for msg in messages 
+            if msg.content and not msg.author.bot and not msg.content.startswith(ctx.prefix)
+            ])
+
+        promt = f"Summarize the following Discord conversation:\n\n{content}\n\nSummary in bullet points:"
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": promt}
+            ],
+            temperature=0.7,
+            max_tokens=500,
+        )
+
+        summary = response.choices[0].message.content
+        embed = discord.Embed(title="Summary", description=summary, color=0x00FFFF)
+        await ctx.send(embed=embed)
+
+    @commands.hybrid_command(name="seen", description="Check when a user was last seen")
+    async def seen (self, ctx: commands.Context, member: discord.Member = None):
+
+        member = member or ctx.author
+
+        data = self.last_seen_collection.find_one({"user_id": member.id})
+
+        if not data:
+            await ctx.send(f"No data found for {member.name}.")
+            return
+        
+        last_seen = data["last_seen"]
+        channel_id = data["channel_id"]
+        channel = self.bot.get_channel(channel_id)
+
+        timestamp = int(last_seen.timestamp())
+        channel_mention = channel.mention if channel else "Unknown Channel"
+
+        embed = discord.Embed(
+            title=f"{member.name}'s Last Seen",
+            description=f"Last seen in {channel_mention}",
+            color=0x00FFFF
+        )
+        embed.add_field(name="Last Seen", value=f"<t:{timestamp}:R>", inline=False)
+        embed.set_footer(text=f"User ID: {member.id}")
+        embed.set_thumbnail(url=member.avatar.url)
+        await ctx.send(embed=embed)
+
+
+    @commands.hybrid_command(name="schedule", description="Schedule a message")
+    async def schedule(self, ctx: commands.Context, *, message: str):
+        if not message:
+            await ctx.send("Please provide a message to schedule.")
+            return
+        
+        if " at " in message:
+            title, time_str = message.split(" at ", 1)
+        elif " on " in message:
+            title, time_str = message.split(" on ", 1)
+        else:
+            title, time_str = message, ""
+
+        time_struct, parse_status = cal.parse(time_str)
+        if parse_status == 0:
+            await ctx.send("I couldn't understand the time format. Please use a valid format.")
+            return
+        
+        scheduled_for = datetime(*time_struct[:6])
+        now = datetime.now()
+
+        if scheduled_for < now:
+            await ctx.send("The scheduled time must be in the future.")
+            return
+        
+        event = {
+            "user_id": ctx.author.id,
+            "channel_id": ctx.channel.id,
+            "event_title": title.strip().capitalize(),
+            "scheduled_for": scheduled_for,
+            "created_at": now
+        }
+
+        self.event_collection.insert_one(event)
+
+        await ctx.send(f"✅ Event '**{event['event_title']}**' scheduled for <t:{int(scheduled_for.timestamp())}:F> (<t:{int(scheduled_for.timestamp())}:R>)")
+
+
+    @tasks.loop(seconds=30)
+    async def check_event(self):
+        now  = datetime.now()
+
+        due_events = list(self.event_collection.find({"scheduled_for": {"$lte": now}}))
+
+        for event in due_events:
+            channel = self.bot.get_channel(event["channel_id"])
+            user = await self.bot.fetch_user(event["user_id"])
+
+            if not channel:
+                channel = await user.create_dm()
+
+            await channel.send(f"⏰ Event: **{event['event_title']}** is happening now!")
+            self.event_collection.delete_one({"_id": event["_id"]})
+
+
+    @commands.hybrid_command(name="my_events", description="Get all your scheduled events")
+    async def my_events(self, ctx: commands.Context):
+        user_id = ctx.author.id
+        events = list(self.event_collection.find({"user_id": user_id}))
+        if not events:
+            await ctx.send("You have no scheduled events.")
+            return
+        
+        embed = discord.Embed(title="Your Scheduled Events", color= discord.Color.from_str(Color.PRIMARY_COLOR))
+        for event in events:
+            event_time = event["scheduled_for"].strftime("%A, %d %B %Y %H:%M")
+            embed.add_field(name=event["event_title"], value=f"Scheduled for: {event_time}", inline=False)
+        embed.set_footer(text=f"Total Events: {len(events)}")
+        await ctx.send(embed=embed)
+
+
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Utility(bot))

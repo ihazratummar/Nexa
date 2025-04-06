@@ -3,9 +3,7 @@ import discord
 from discord.ext import commands
 from bot.config import Bot
 from typing import Dict
-import json
-import os
-import asyncio
+from bot.core.constant import Color
 
 
 class Economy(commands.Cog):
@@ -28,7 +26,7 @@ class Economy(commands.Cog):
             embed = discord.Embed(
                 title=f"{ctx.author.name}'s Balance",
                 description=f"Wallet -{self.currency_icon} {wallet}\nBank -{self.currency_icon} {bank}",
-                color=0x00FF00,
+                color=discord.Color.from_str(Color.PRIMARY_COLOR),
             )
             await ctx.send(embed=embed)
         else:
