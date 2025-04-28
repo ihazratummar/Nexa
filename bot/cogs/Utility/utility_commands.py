@@ -31,8 +31,8 @@ class Utility(commands.Cog):
         self.event_collection = self.db["ScheduledEvents"]
 
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
+
+    async def last_seen(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -47,8 +47,6 @@ class Utility(commands.Cog):
             {"$set": data},
             upsert=True
         )
-
-        await self.bot.process_commands(message)
 
     @commands.hybrid_command(name="help", description= "Get all the commands list")
     async def help(self, interaction: commands.Context):

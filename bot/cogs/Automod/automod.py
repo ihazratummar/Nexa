@@ -27,8 +27,7 @@ class AutoMod(commands.Cog):
 
     
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
+    async def auto_mod(self, message):
         if message.author.bot:
             return
         
@@ -110,7 +109,6 @@ class AutoMod(commands.Cog):
                     print(f"[DELETED] Video flagged by: {reasons}")
                     break
 
-        await self.bot.process_commands(message)
 
     @commands.command()
     @commands.has_permissions(administrator=True)

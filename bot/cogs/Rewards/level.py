@@ -13,8 +13,7 @@ class Level(commands.Cog):
         self.db = bot.database
         self.collection = self.db['level']
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
+    async def level_up(self, message):
         if not message.author.bot and not message.content.startswith(self.bot.command_prefix):
             user_id = str(message.author.id)
             collection = self.db[f"{message.guild.name}({message.guild.id})"]
@@ -38,8 +37,7 @@ class Level(commands.Cog):
                     await message.channel.send(
                             f"{message.author.mention}, you have reached level {new_level} "
                         )
-
-
+                    
     def calculate_level(self, xp, current_level):
         # Define XP thresholds for each level
         level_thresholds = [

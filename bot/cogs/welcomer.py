@@ -166,6 +166,45 @@ class Welcomer(commands.Cog):
 
         await ctx.send("Set invite log successful")
 
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if len(before.roles) < len(after.roles):
+            new_roles = [role for role in after.roles if role not in before.roles]
+            for role in new_roles:
+                if role.is_premium_subscriber():
+                    boost_channel_id = 1123909975522160691
+                    boost_channel = self.bot.get_channel(boost_channel_id)
+                    if boost_channel:
+                        message = (f"Thank you for boosting, {after.mention}",)
+                        await boost_channel.send(message)
+
+    @commands.Cog.listener()
+    async def on_guild_update(self, before: discord.Guild, after: discord.Guild):
+
+        if before.premium_subscription_count < after.premium_subscription_count:
+            boost_difference = after.premium_subscription_count - before.premium_subscription_count
+            channel = self.bot.get_channel(1123909975522160691)
+
+            if channel:
+                await channel.send(
+                    f"Thank you for boosting, {after.name}!\n"
+                    f"Total Boosts: {after.premium_subscription_count}\n"
+                    f"New Boosts: {boost_difference}"
+                )
+
+    @commands.hybrid_command(name = "testboost")
+    async def testboost(self, ctx: commands.Context):
+        guild = ctx.guild
+        before = guild
+        after = guild
+
+        before_boost = before.premium_subscription_count
+        after.premium_subscription_count += 1  # Simulating a boost
+
+        await self.on_guild_update(before, after)
+        await ctx.send(f"Test boost event triggered. Before Boost: {before_boost} After Boost: {after.premium_subscription_count}")
+                        
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Welcomer(bot))
