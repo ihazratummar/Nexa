@@ -12,3 +12,5 @@ easy-pil
 pillow
 pilmoji
 pytz
+parsedatetime
+openai
