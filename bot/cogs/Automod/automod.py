@@ -12,26 +12,24 @@ IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"]
 class AutoMod(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-        self.log_channels = self.load_log_channels()
-
-    def load_log_channels(self):
-        try:
-            with open("Bot/cogs/Automod/log_channels.json", "r") as file:
-                return json.load(file)
-        except FileNotFoundError:
-            return {}
-
-    def save_log_channels(self):
-        with open("Bot/cogs/Automod/log_channels.json", "w") as file:
-            json.dump(self.log_channels, file, indent=4)
-
-    
+        self.db = bot.mongo_client["BotDatabase"]
+        self.collection = self.db["guild_settings"]
 
     async def auto_mod(self, message):
+
+        guild_id = str(message.guild.id)
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if not guild_data:
+            return
+        automod_enabled = guild_data.get("automod_enabled", False)
+        if not automod_enabled:
+            return
+        # Check if the message is from a bot
+    
         if message.author.bot:
             return
         
-        if "discord.gg/" in message.content or "discord.com/invite/" in message.content or "https" in message.content or "https" in message.content:
+        if "discord.gg/" in message.content or "discord.com/invite/" in message.content or "http" in message.content:
             if isinstance(message.author, discord.Member):
                 if (
                     message.author.guild_permissions.administrator
@@ -109,15 +107,23 @@ class AutoMod(commands.Cog):
                     print(f"[DELETED] Video flagged by: {reasons}")
                     break
 
-
-    @commands.command()
+    
+    @commands.hybrid_command(name="enable_automod", description="Enable AutoMod")
     @commands.has_permissions(administrator=True)
-    async def setlog(self, ctx, channel: discord.TextChannel):
-        """Set the log channel for deleted messages."""
-        self.log_channels[str(ctx.guild.id)] = channel.id
-        self.save_log_channels()
-        await ctx.send(f"Log channel set to {channel.mention}")
+    async def enable_automod(self, ctx: commands.Context):
+        guild_id = str(ctx.guild.id)
 
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+
+        if not guild_data:
+            await ctx.send("Guild data not found.")
+            return
+        
+        self.collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"automod_enabled": True}},
+        )
+        await ctx.send("AutoMod has been enabled for this guild.")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AutoMod(bot))
