@@ -24,13 +24,43 @@ class Utility(commands.Cog):
     def __init__(self, bot : Bot):
         self.bot = bot
         self.db = self.bot.mongo_client["User_Database"]
+        self.bot_database = self.bot.mongo_client["BotDatabase"]
         self.collection = self.db["Reminders"]
         self.check_reminders.start()
         self.check_event.start()
         self.last_seen_collection = self.db["LastSeen"]
         self.event_collection = self.db["ScheduledEvents"]
+        self.guild_settings_collection = self.bot_database["guild_settings"]
 
 
+
+    @commands.hybrid_command(name="set_new_member_role", description="Set the new member role")
+    @commands.has_permissions(administrator=True)
+    async def set_new_member_role(self, ctx: commands.Context, role: discord.Role):
+        guild_id = str(ctx.guild.id)
+        role_id = str(role.id)
+
+        self.guild_settings_collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"new_member_role": role_id}},
+            upsert=True
+        )
+
+        await ctx.send(f"New member role set to {role.mention}.")
+
+    @commands.hybrid_command(name="set_bot_role", description="Set the bot role")
+    @commands.has_permissions(administrator=True)
+    async def set_bot_role(self, ctx: commands.Context, role: discord.Role):
+        guild_id = str(ctx.guild.id)
+        role_id = str(role.id)
+
+        self.guild_settings_collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"bot_role": role_id}},
+            upsert=True
+        )
+
+        await ctx.send(f"Bot role set to {role.mention}.")
 
     async def last_seen(self, message: discord.Message):
         if message.author.bot:

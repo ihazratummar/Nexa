@@ -1,150 +1,174 @@
 import discord
 from discord.ext import commands
 import json
-
+from bot.core.models import guild_models
+from bot.core.embed.embed_builder import build_welcome_embed
 
 
 class Welcomer(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.db = bot.mongo_client["BotDatabase"]
+        self.collection = self.db["guild_settings"]
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+
+        guild_id = str(member.guild.id)
+
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if not guild_data:
+            return
+        
+        # Assign roles to new members and bots
+        await self.auto_role_for_new_members_and_bots(member)
+        
+        is_welcome_enabled = guild_data.get("welcome_enabled")
+        if not is_welcome_enabled:
+            return
+        
+        
+        await self.welcome_message(member)
+        
+    async def auto_role_for_new_members_and_bots(self, member: discord.Member):
+        guild_id = str(member.guild.id)
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if not guild_data:
+            return
+        new_member_role_id = guild_data.get("new_member_role")
+        bot_role_id = guild_data.get("bot_role")
+        if new_member_role_id:
+            new_member_role = member.guild.get_role(int(new_member_role_id))
+            if new_member_role:
+                await member.add_roles(new_member_role)
         if member.bot:
-            first_role_id = 511215381420048384
-            first_role = member.guild.get_role(first_role_id)
-            if first_role:
-                await member.add_roles(first_role)
+            bot_role = member.guild.get_role(int(bot_role_id))
+            if bot_role:
+                await member.add_roles(bot_role)
+    
+    async def welcome_message(self, member: discord.Member):
+        guild_id = str(member.guild.id)
+        guild_data = self.collection.find_one({"guild_id": guild_id})
 
-            second_role_id = 567387858546065408
-            second_role = member.guild.get_role(second_role_id)
-            if second_role:
-                await member.add_roles(second_role)
-        
+        if not guild_data or not guild_data.get("welcome_enabled"):
+            return
+
+        welcome_channel_id = guild_data.get("welcome_channel_id")
+        welcome_embed_data = guild_data.get("welcome_embed")
+
+        if not welcome_channel_id or not welcome_embed_data:
+            return
+
+        channel = self.bot.get_channel(int(welcome_channel_id))
+        if not channel:
+            return
+
         try:
-            with open("data/welcome.json", "r") as f:
-                records = json.load(f)
-            welcome_data = records[str(member.guild.id)]
-        except (FileNotFoundError, KeyError):
+            welcome_embed = guild_models.WelcomeEmbed(**welcome_embed_data)
+        except Exception as e:
+            print(f"Error loading welcome embed data: {e}")
             return
-        channel_id = welcome_data["channel_id"]
-        if not channel_id:
-            return
-        channel = self.bot.get_channel(int(channel_id))
-        embed = discord.Embed(
-            title=welcome_data['title'].format(member = member) if 'title' in welcome_data and welcome_data['title'] else f"Welcome to {member.guild.name}",
-            description=welcome_data['description'].format(member = member) if 'description' in welcome_data and welcome_data['description'] else f"Hi {member.mention} welcome to your discord server. Enjoy your stay. ",
-            color=0x00FFFF,
-        )
+
+        embed = build_welcome_embed(welcome_embed)
         embed.set_thumbnail(url=member.avatar.url)
-        if welcome_data['image']:
-            embed.set_image(
-                url=f"{welcome_data['image']}"
-            )  
-        
 
-        channel_fields = [
-            "📣｜sᴇʀᴠᴇʀ-ʀᴜʟᴇs",
-            "🎐｜ᴀʙᴏᴜᴛ-ʜᴀᴢʀᴀᴛ",
-        ]
-
-        channels_found = []
-
-        for channel_name in channel_fields:
-            channel_field = discord.utils.get(
-                member.guild.text_channels, name=channel_name
-            )
-            if channel_field:
-                channels_found.append(channel_field.mention)
-
-        if channels_found:
-            embed.add_field(
-                name="Important Channels",
-                value="\n".join(channels_found),
-                inline=True,
-            )
-
-        channel_fields = [
-            "📌｜sᴛʀᴇᴀᴍ",
-            "📌｜sᴏᴄɪᴀʟ",
-        ]
-
-        channels_found = []
-
-        for channel_name in channel_fields:
-            channel_field = discord.utils.get(
-                member.guild.text_channels, name=channel_name
-            )
-            if channel_field:
-                channels_found.append(channel_field.mention)
-
-        if channels_found:
-            embed.add_field(
-                name="Notification",
-                value="\n".join(channels_found),
-                inline=True,
-            )
-
-        inviter = None
-        async for entry in member.guild.audit_logs(limit=1):
-            if entry.action == discord.AuditLogAction.invite_create:
-                inviter = entry.user
-                break
-
-        embed.add_field(
-            name="Invited By",
-            value=inviter.mention if inviter else "Unknown",
-            inline=False,
-        )
-
-        await channel.send(content=member.mention, embed=embed)
-
-        role_id = 874718527284727838  # Replace with the actual role ID
-        role = member.guild.get_role(role_id)
-        if role:
-            await member.add_roles(role)
-
-
-        with open("data/invite.json", "r") as f:
-            records = json.load(f)
-        try:
-            channel_id = records[str(member.guild.id)]
-        except KeyError:
-            return
-        invite_channel = self.bot.get_channel(int(channel_id))
-        if not invite_channel:
-            return
-        
-        inviter = None
-        async for entry in member.guild.audit_logs(limit=1):
-            if entry.action == discord.AuditLogAction.invite_create:
-                inviter = entry.user
-                break
-        await invite_channel.send(f"{member.mention} Invited By {inviter}")
+        await channel.send(embed=embed)
 
     ## Setup welcome channel
     @commands.hybrid_command()
     @commands.has_permissions(administrator=True)
-    async def welcome(self, ctx: commands.Context, 
-                        title: str = None, 
-                        description:str =None,
-                        image: str = None ):
-        with open("data/welcome.json", "r") as f:
-            records = json.load(f)
+    async def welcome(self, ctx: commands.Context, title: str = None,description:str =None,color: str = None,image: str = None ):
+        guild_id = str(ctx.guild.id)
 
-        records[str(ctx.guild.id)] = {
-            "guild_name" : str(ctx.guild.name),
-            "channel_id": str(ctx.channel.id),
-            "title": title,
-            "description": description,
-            "image": image
+        welcome_embed = guild_models.WelcomeEmbed(
+            title=title or "Welcome!",
+            description=description or "Glad to have you here!",
+            color=color or None,
+            image_url=image or None,
+            thumbnail_url=ctx.guild.icon.url if ctx.guild.icon else None,
+            footer=f"Welcome to {ctx.guild.name}!",
+        )
+
+        update = {
+            "$set":{
+                "guild_id": guild_id,
+                "guild_name": str(ctx.guild.name),
+                "welcome_enabled": True,
+                "welcome_channel_id": str(ctx.channel.id),
+                "welcome_embed": welcome_embed.dict(),
+            }
         }
-        with open("data/welcome.json", "w") as f:
-            json.dump(records, f)
+
+        self.collection.update_one({"guild_id": guild_id}, update, upsert=True)
 
         await ctx.send(
             f"Successfully {ctx.channel.mention} is your welcome channel."
         )
+
+    @commands.hybrid_command(name = "add_welcome_field", description = "Add a field to the welcome embed")
+    @commands.has_permissions(administrator=True)
+    async def add_welcome_field(self, ctx: commands.Context, name: str, value: str, inline: bool = True):
+        guild_id = str(ctx.guild.id)
+
+        # Fetch the current welcome embed data
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if not guild_data or not guild_data.get("welcome_embed"):
+            await ctx.send("Welcome embed is not set up yet.")
+            return
+
+        try:
+            welcome_embed = guild_models.WelcomeEmbed(**guild_data["welcome_embed"])
+        except Exception as e:
+            await ctx.send(f"Error loading welcome embed data: {e}")
+            return
+        
+        if len(welcome_embed.fields) >= 25:
+            await ctx.send("Cannot add more than 25 fields to the embed.")
+            return
+        
+        # Add the new field
+        welcome_embed.fields.append(guild_models.EmbedField(name=name, value=value, inline=inline))
+
+        # Update the database
+
+        self.collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"welcome_embed": welcome_embed.dict()}}
+        )
+
+        await ctx.send(f"Field '{name}' added to the welcome embed.")
+
+    @commands.hybrid_command(name = "remove_welcome_field", description = "Remove a field from the welcome embed")
+    @commands.has_permissions(administrator=True)
+    async def remove_welcome_field(self, ctx: commands.Context, name: str):
+        guild_id = str(ctx.guild.id)
+
+        # Fetch the current welcome embed data
+        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if not guild_data or not guild_data.get("welcome_embed"):
+            await ctx.send("Welcome embed is not set up yet.")
+            return
+
+        try:
+            welcome_embed = guild_models.WelcomeEmbed(**guild_data["welcome_embed"])
+        except Exception as e:
+            await ctx.send(f"Error loading welcome embed data: {e}")
+            return
+
+        # Remove the field
+        welcome_embed.fields = [field for field in welcome_embed.fields if field.name != name]
+        
+        if len(welcome_embed.fields) == len(guild_data["welcome_embed"]["fields"]):
+            await ctx.send(f"No field named '{name}' found in the welcome embed.")
+            return
+
+        # Update the database
+        self.collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"welcome_embed": welcome_embed.dict()}}
+        )
+
+        await ctx.send(f"Field '{name}' removed from the welcome embed.")
 
     @commands.Cog.listener()
     async def on_boost(self, guild: discord.Guild, booster: discord.Member):
