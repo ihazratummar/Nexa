@@ -19,7 +19,7 @@ class Welcomer(commands.Cog):
         guild_data = self.collection.find_one({"guild_id": guild_id})
         if not guild_data:
             return
-        
+            
         # Assign roles to new members and bots
         await self.auto_role_for_new_members_and_bots(member)
         
