@@ -2,7 +2,6 @@ from builtins import int
 import discord
 from discord.ext import commands
 from bot.config import Bot
-from typing import Dict
 from bot.core.constant import Color
 
 

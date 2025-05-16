@@ -5,13 +5,10 @@ import os
 from pymongo import MongoClient
 
 
-# endregion
-
 load_dotenv()
 
 mongo_uri = os.getenv("MONGO_CONNECTION")
 mongo_client = MongoClient(mongo_uri)
-database = mongo_client["Level_Database"]
 
 exts = [
     "bot.cogs.error",
@@ -30,10 +27,9 @@ exts = [
 
 
 class Bot(commands.Bot):
-    def __init__(self, command_prefix: str, intents: discord.Intents, database,  **kwargs):
+    def __init__(self, command_prefix: str, intents: discord.Intents,  **kwargs):
         super().__init__(command_prefix, intents=intents, **kwargs)
         self.mongo_client = mongo_client
-        self.database = database
 
     async def on_ready(self):
         for ext in exts:

@@ -6,6 +6,7 @@ import os
 import requests
 import json
 import logging
+from bot.core.constant import Channel
 
 # Load environment variables
 load_dotenv()
@@ -49,9 +50,8 @@ class Notification(commands.Cog):
 
         # Find new followers by comparing with previous followers
         new_followers = [follower for follower in current_followers if follower not in self.previous_followers]
-        channel = os.getenv("DEV_NOTIFICATION_CHANNEL")
         if new_followers:
-            channel = self.bot.get_channel(int(channel))
+            channel = self.bot.get_channel(Channel.DEV_NOTIFICATION_CHANNEL)
             if channel:
                 for follower in new_followers:
                     embed = discord.Embed(title="New Follower!", description=None, color=0x00FFFF)

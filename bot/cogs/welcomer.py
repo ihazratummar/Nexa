@@ -95,7 +95,7 @@ class Welcomer(commands.Cog):
                 "guild_name": str(ctx.guild.name),
                 "welcome_enabled": True,
                 "welcome_channel_id": str(ctx.channel.id),
-                "welcome_embed": welcome_embed.dict(),
+                "welcome_embed": welcome_embed.model_dump(),
             }
         }
 
@@ -133,7 +133,7 @@ class Welcomer(commands.Cog):
 
         self.collection.update_one(
             {"guild_id": guild_id},
-            {"$set": {"welcome_embed": welcome_embed.dict()}}
+            {"$set": {"welcome_embed": welcome_embed.model_dump()}}
         )
 
         await ctx.send(f"Field '{name}' added to the welcome embed.")
@@ -165,7 +165,7 @@ class Welcomer(commands.Cog):
         # Update the database
         self.collection.update_one(
             {"guild_id": guild_id},
-            {"$set": {"welcome_embed": welcome_embed.dict()}}
+            {"$set": {"welcome_embed": welcome_embed.model_dump()}}
         )
 
         await ctx.send(f"Field '{name}' removed from the welcome embed.")
