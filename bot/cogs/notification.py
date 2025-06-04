@@ -1,19 +1,18 @@
 import discord
-from discord.ext import commands, tasks
-from bot.config import Bot
-from dotenv import load_dotenv
-import os
-import requests
 import json
 import logging
+import os
+import requests
+from discord.ext import commands, tasks
 
-# Load environment variables
-load_dotenv()
+from bot import DEV_API_KEY
+from bot.config import Bot
+from bot.core.constant import Channel
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-DEV_API_KEY = os.getenv("DEV_API_KEY")
 FOLLOWERS_FILE = "data/followers.json"
 
 class Notification(commands.Cog):
@@ -49,9 +48,8 @@ class Notification(commands.Cog):
 
         # Find new followers by comparing with previous followers
         new_followers = [follower for follower in current_followers if follower not in self.previous_followers]
-        channel = os.getenv("DEV_NOTIFICATION_CHANNEL")
         if new_followers:
-            channel = self.bot.get_channel(int(channel))
+            channel = self.bot.get_channel(Channel.DEV_NOTIFICATION_CHANNEL)
             if channel:
                 for follower in new_followers:
                     embed = discord.Embed(title="New Follower!", description=None, color=0x00FFFF)

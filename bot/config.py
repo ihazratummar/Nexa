@@ -3,16 +3,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+from bot import mongo_client
 
-
-# endregion
-
-load_dotenv()
-token = os.getenv("DISCORD_TOKEN")
-
-mongo_uri = os.getenv("MONGO_CONNECTION")
-mongo_client = MongoClient(mongo_uri)
-database = mongo_client["Level_Database"]
 
 exts = [
     "bot.cogs.error",
@@ -31,16 +23,18 @@ exts = [
 
 
 class Bot(commands.Bot):
-    def __init__(self, command_prefix: str, intents: discord.Intents, database,  **kwargs):
+    def __init__(self, command_prefix: str, intents: discord.Intents,  **kwargs):
         super().__init__(command_prefix, intents=intents, **kwargs)
         self.mongo_client = mongo_client
-        self.database = database
 
     async def on_ready(self):
         for ext in exts:
-            if ext not in self.extensions:
+            try:
                 await self.load_extension(ext)
-        print("loaded all cogs")
+            except Exception as e:
+                print(f"Error loading extension {ext}: {e}")
+
+        print("Loaded all cogs")
 
 
         synced = await self.tree.sync()
@@ -50,3 +44,31 @@ class Bot(commands.Bot):
         await self.change_presence(
             activity=discord.Game(name="Moderating Code Circle")
         )
+
+    # Debugging: Check if the AutoMod cog is successfully loaded
+        if "AutoMod" in self.cogs:
+            print("AutoMod cog is loaded successfully.")
+        else:
+            print("Failed to load AutoMod cog.")
+
+    async def on_message(self, message):
+        if message.author.bot:
+            return
+        
+        cogs = [
+        ("AutoMod", "auto_mod"),
+        ("Level", "level_up"),
+        ("Utility", "last_seen"),
+    ]
+        for cog_name, method_name in cogs:
+            cog = self.get_cog(cog_name)
+            if cog:
+                method = getattr(cog, method_name, None)
+                if method:
+                    await method(message)
+                else:
+                    print(f"Error: {method_name} method not found in {cog_name} cog.")
+            else:
+                print(f"Error: {cog_name} cog is not available.")
+
+        await self.process_commands(message)

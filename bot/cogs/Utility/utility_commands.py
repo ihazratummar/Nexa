@@ -1,38 +1,61 @@
 import discord
 from discord.ext import commands, tasks
 from bot.config import Bot
-from dotenv import load_dotenv
+from bot import openai_client, API_NINJA
 import asyncio
 import requests
 import random
-import os
 from datetime import datetime, timedelta
 import parsedatetime
-import openai
 from bot.core.constant import Color
+from bot.core.openai_utils import get_chat_completion
 
-
-load_dotenv()
 
 cal = parsedatetime.Calendar()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-client = openai.OpenAI(api_key=OPENAI_API_KEY)
-
 
 class Utility(commands.Cog):
     def __init__(self, bot : Bot):
         self.bot = bot
         self.db = self.bot.mongo_client["User_Database"]
+        self.bot_database = self.bot.mongo_client["BotDatabase"]
         self.collection = self.db["Reminders"]
         self.check_reminders.start()
         self.check_event.start()
         self.last_seen_collection = self.db["LastSeen"]
         self.event_collection = self.db["ScheduledEvents"]
+        self.guild_settings_collection = self.bot_database["guild_settings"]
 
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
+
+    @commands.hybrid_command(name="set_new_member_role", description="Set the new member role")
+    @commands.has_permissions(administrator=True)
+    async def set_new_member_role(self, ctx: commands.Context, role: discord.Role):
+        guild_id = str(ctx.guild.id)
+        role_id = str(role.id)
+
+        self.guild_settings_collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"new_member_role": role_id}},
+            upsert=True
+        )
+
+        await ctx.send(f"New member role set to {role.mention}.")
+
+    @commands.hybrid_command(name="set_bot_role", description="Set the bot role")
+    @commands.has_permissions(administrator=True)
+    async def set_bot_role(self, ctx: commands.Context, role: discord.Role):
+        guild_id = str(ctx.guild.id)
+        role_id = str(role.id)
+
+        self.guild_settings_collection.update_one(
+            {"guild_id": guild_id},
+            {"$set": {"bot_role": role_id}},
+            upsert=True
+        )
+
+        await ctx.send(f"Bot role set to {role.mention}.")
+
+    async def last_seen(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -47,8 +70,6 @@ class Utility(commands.Cog):
             {"$set": data},
             upsert=True
         )
-
-        await self.bot.process_commands(message)
 
     @commands.hybrid_command(name="help", description= "Get all the commands list")
     async def help(self, interaction: commands.Context):
@@ -253,10 +274,9 @@ class Utility(commands.Cog):
     @commands.hybrid_command(name="antonym", description="Provides antonyms for the specified word.")
     async def antonym(self, ctx: commands.Context, word: str):
         api_url = f'https://api.api-ninjas.com/v1/thesaurus?word={word}'
-        api_key = os.getenv("API_NINJA")
 
         # Check if API key is available
-        if not api_key:
+        if not API_NINJA:
             await ctx.send("API key is not set. Please configure the API key.")
             return
 
@@ -286,14 +306,13 @@ class Utility(commands.Cog):
     @commands.hybrid_command(name="synonym", description="Provides synonyms for the specified word")
     async def synonym(self, ctx: commands.Context, word: str):
         api_url = f'https://api.api-ninjas.com/v1/thesaurus?word={word}'
-        api_key = os.getenv("API_NINJA")
 
         # Check if API key is available
-        if not api_key:
+        if not API_NINJA:
             await ctx.send("API key is not set. Please configure the API key.")
             return
 
-        response = requests.get(api_url, headers={'X-Api-Key': api_key})
+        response = requests.get(api_url, headers={'X-Api-Key': API_NINJA})
 
         if response.status_code == 200:
             data = response.json()
@@ -334,18 +353,8 @@ class Utility(commands.Cog):
             if msg.content and not msg.author.bot and not msg.content.startswith(ctx.prefix)
             ])
 
-        promt = f"Summarize the following Discord conversation:\n\n{content}\n\nSummary in bullet points:"
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "user", "content": promt}
-            ],
-            temperature=0.7,
-            max_tokens=500,
-        )
-
-        summary = response.choices[0].message.content
+        prompt = f"Summarize the following Discord conversation:\n\n{content}\n\nSummary in bullet points:"
+        summary = get_chat_completion(prompt)
         embed = discord.Embed(title="Summary", description=summary, color=0x00FFFF)
         await ctx.send(embed=embed)
 

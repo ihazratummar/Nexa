@@ -5,16 +5,15 @@ from bot.config import Bot
 from discord import app_commands , File
 from easy_pil import Canvas, Editor, font , load_image_async
 from PIL import Image
+from bot.core.constant import DbCons
 
 
 class Level(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-        self.db = bot.database
-        self.collection = self.db['level']
+        self.db = bot.mongo_client[DbCons.LEVEL_DATABASE]
 
-    @commands.Cog.listener()
-    async def on_message(self, message):
+    async def level_up(self, message):
         if not message.author.bot and not message.content.startswith(self.bot.command_prefix):
             user_id = str(message.author.id)
             collection = self.db[f"{message.guild.name}({message.guild.id})"]
@@ -38,7 +37,6 @@ class Level(commands.Cog):
                     await message.channel.send(
                             f"{message.author.mention}, you have reached level {new_level} "
                         )
-
 
     def calculate_level(self, xp, current_level):
         # Define XP thresholds for each level
@@ -73,12 +71,12 @@ class Level(commands.Cog):
             (3500, 35),
             (4000, 40),
         ]
-        
+
         # Find the XP required for the next level based on the current level
         for threshold, level in level_thresholds:
             if level > current_level:
                 return threshold
-        return level_thresholds[-1][0]  # If max level reached, return max threshold
+        return level_thresholds[-1][0]  # If max level reached, return a max threshold
 
     @commands.hybrid_command("rank")
     async def rank(self, interaction: commands.context):
@@ -117,7 +115,7 @@ class Level(commands.Cog):
             profile_picture_background_height = profile_picture_background.image.size[1]
             profile_picture_height = profile_image.image.size[1]
 
-            # Calculate the center horizontal position for profile picture
+            # Calculate the center horizontal position for the profile picture
             profile_picture_background_width = profile_picture_background.image.size[0]
             profile_picture_width = profile_image.image.size[0]
 
