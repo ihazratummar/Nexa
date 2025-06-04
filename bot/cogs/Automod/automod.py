@@ -58,6 +58,8 @@ class AutoMod(commands.Cog):
                         await log_channel.send(embed=embed)
 
         # Analyze text toxicity
+
+    
         score = await analyze_comment(message.content)
         print(f"[TEXT CHECK] Message: {message.content} | Toxicity Score: {score:.2f}")
 

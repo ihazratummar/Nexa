@@ -1,17 +1,15 @@
 import asyncio
-import os
-import re
 import discord
+import re
 import requests
-from bot.config import Bot
 from discord import app_commands
 from discord.ext import commands
 from dotenv import load_dotenv
-from ..core.Buttons.buttons import  LinksButton
 
-load_dotenv()
-
-WEATHER_API = os.getenv("WEATHER_API")
+from bot import openai_client, WEATHER_API
+from bot.config import Bot
+from ..core.Buttons.buttons import LinksButton
+from ..core.openai_utils import get_chat_completion
 
 
 class General(commands.Cog):
@@ -24,33 +22,6 @@ class General(commands.Cog):
         await interaction.send(f"Hi how are you")
 
 
-
-
-    @commands.hybrid_command(name="social")
-    async def social(self, interaction: commands.hybrid_command):
-        embed = discord.Embed(
-            title= "Social Links",
-            description= "Check Click and Visit Our Official Links for More info!",
-            colour= discord.Colour.brand_green()
-        )
-        embed.set_thumbnail(url="https://media.tenor.com/-Nc9wGWx3X8AAAAi/pepe-fastest-pepe-the-frog.gif")
-        embed.set_image(url="https://media1.tenor.com/m/WmU_8UAyg_8AAAAC/night.gif")
-        embed.add_field(name="<:discord:1243197853371859017> Discord", value="[Discord](https://discord.gg/DhsEvqHyE9)")
-        embed.add_field(name="<:facebook:1243197848498077716> Facebook", value="[Facebook](https://www.facebook.com/crazyforsurprise)")
-        embed.add_field(name="<:youtube:1243197856014139485> YouTube", value="[YouTube](https://www.youtube.com/crazyforsurprise)")
-        embed.add_field(name="<:instagram:1243197850880446464> Instagram", value="[Instagram](https://www.instagram.com/ihazratummar)")
-
-        button_list = [
-            ("Discord", "https://discord.gg/g3M4MWK", "<:discord:1243197853371859017>"),
-            ("Facebook", "https://www.facebook.com/crazyforsurprise", "<:facebook:1243197848498077716>"),
-            ("YouTube", "https://www.youtube.com/crazyforsurprise", "<:youtube:1243197856014139485>"),
-            ("Instagram", "https://www.instagram.com/ihazratummar", "<:instagram:1243197850880446464>")
-
-        ]
-
-        await interaction.send(
-            embed= embed, view = LinksButton(buttons_list= button_list)
-        )
     @commands.hybrid_command(name="youtube", description="search video")
     async def youtube(self, interaction: commands.Context, search: str):
         response = requests.get(f"https://youtube.com/results?search_query={search}")
@@ -59,6 +30,23 @@ class General(commands.Cog):
         url = "https://www.youtube.com" + html[index : index + 20]
         await interaction.send(url)
 
+    @commands.hybrid_command(name="love", description="Get a beautiful Islamic love quote ❤️")
+    async def love(self, interaction: commands.Context):
+        await interaction.defer()
+        prompt = (
+            "Create a heartfelt and beautiful Islamic love quote or line for us husband and wife.ismita and ummar "
+            "It should reflect Islamic values of love, compassion, and respect in marriage. "
+            "Avoid sounding robotic. Make it emotional, poetic, and include relevant emojis."
+        )
+        system_prompt = (
+            "You are a helpful assistant that generates emotionally touching Islamic love quotes. "
+            "Do not reword any proper names or keywords. "
+            "The quote should be elegant, not exceed 950 characters, include emojis, and must feel human and heartfelt. "
+            "Output only the quote. No explanations, no prefixes."
+        )
+        summary = get_chat_completion(prompt=prompt, system=system_prompt)
+        embed = discord.Embed(title="Love Quote", description=summary, color=0x00FFFF)
+        await interaction.send(embed=embed)
 
 
 async def setup(bot: commands.Bot):

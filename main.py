@@ -2,9 +2,10 @@ import discord
 import os
 from dotenv import load_dotenv
 from bot.config import Bot
+from bot import token
 
 load_dotenv()
-token = os.getenv("DISCORD_TOKEN")
+# token = os.getenv("DISCORD_TOKEN")
 
 
 if __name__ == "__main__":
@@ -18,5 +19,5 @@ if __name__ == "__main__":
     else:
         prefix = "u!"
 
-    bot = Bot(command_prefix=prefix, intents=discord.Intents.default(),  help_command= None )
+    bot = Bot(command_prefix=prefix, intents=discord.Intents.all(),  help_command= None )
     bot.run(token=token)

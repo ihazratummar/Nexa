@@ -1,15 +1,12 @@
-import discord
-from discord.ext import commands
-from bot.config import Bot
-import requests
 import asyncio
-import random
-from dotenv import load_dotenv
-import os
+import discord
 import json
+import random
+import requests
+from discord.ext import commands
 
-
-load_dotenv()
+from bot import GIPHY_API, CAT_API_KEY, API_NINJA, DOG_API_KEY
+from bot.config import Bot
 
 
 class Fun(commands.Cog):
@@ -64,8 +61,7 @@ class Fun(commands.Cog):
     @commands.hybrid_command(name="gif", description = "Get a random gif")
     @commands.cooldown(2, 10, commands.BucketType.user)
     async def gif(self, ctx:commands.Context, tag: str):
-        api_key = os.getenv("GIPHY_API")
-        url = f"https://api.giphy.com/v1/gifs/random?api_key={api_key}&rating=g&tag={tag}"
+        url = f"https://api.giphy.com/v1/gifs/random?api_key={GIPHY_API}&rating=g&tag={tag}"
         response = requests.get(url)
         
         if response.status_code != 200:
@@ -109,9 +105,8 @@ class Fun(commands.Cog):
     @commands.hybrid_command(name="cat", description = "Get a random cat image with description")
     @commands.cooldown(4, 20, commands.BucketType.guild)
     async def cat(self, ctx: commands.Context, user: discord.Member = None):
-        api_key = os.getenv("CAT_API_KEY")
         url = "https://api.thecatapi.com/v1/images/search?has_breeds=1"
-        reponse = requests.get(url, headers={'x-api-key': f"{api_key}"})
+        reponse = requests.get(url, headers={'x-api-key': f"{CAT_API_KEY}"})
 
         data = reponse.json()
 
@@ -134,9 +129,8 @@ class Fun(commands.Cog):
     @commands.hybrid_command(name="dog", description = "Get a random cat image with description")
     @commands.cooldown(4, 20, commands.BucketType.guild)
     async def dog(self, ctx: commands.Context, user: discord.Member = None):
-        api_key = os.getenv("DOG_API_KEY")
         url = "https://api.thedogapi.com/v1/images/search?has_breeds=1"
-        reponse = requests.get(url, headers={'x-api-key': f"{api_key}"})
+        reponse = requests.get(url, headers={'x-api-key': f"{DOG_API_KEY}"})
 
         data = reponse.json()
 
@@ -158,9 +152,8 @@ class Fun(commands.Cog):
     @commands.hybrid_command(name="fact", description = "Get a random fact")
     @commands.cooldown(5, 10, commands.BucketType.user)
     async def fact(self, ctx: commands.Context, user: discord.Member = None):
-        api_key = os.getenv("API_NINJA")
         url = "https://api.api-ninjas.com/v1/facts"
-        response = requests.get(url, headers={'X-Api-Key':f'{api_key}'})
+        response = requests.get(url, headers={'X-Api-Key':f'{API_NINJA}'})
         if response.status_code != 200:
             await ctx.send("Connection Failed")
         

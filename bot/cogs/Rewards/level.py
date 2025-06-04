@@ -12,7 +12,6 @@ class Level(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.db = bot.mongo_client[DbCons.LEVEL_DATABASE]
-        self.collection = self.db[DbCons.LEVEL_COLLECTION]
 
     async def level_up(self, message):
         if not message.author.bot and not message.content.startswith(self.bot.command_prefix):

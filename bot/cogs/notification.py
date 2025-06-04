@@ -1,20 +1,18 @@
 import discord
-from discord.ext import commands, tasks
-from bot.config import Bot
-from dotenv import load_dotenv
-import os
-import requests
 import json
 import logging
+import os
+import requests
+from discord.ext import commands, tasks
+
+from bot import DEV_API_KEY
+from bot.config import Bot
 from bot.core.constant import Channel
 
-# Load environment variables
-load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-DEV_API_KEY = os.getenv("DEV_API_KEY")
 FOLLOWERS_FILE = "data/followers.json"
 
 class Notification(commands.Cog):

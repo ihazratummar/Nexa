@@ -9,7 +9,7 @@ asyncio
 pymongo
 asyncpg
 easy-pil
-pillow
+Pillow
 pilmoji
 pytz
 parsedatetime

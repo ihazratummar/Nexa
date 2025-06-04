@@ -1,20 +1,18 @@
+import aiohttp
 import discord
-from discord.ext import commands
-from discord import app_commands
-from bot.config import Bot
-import requests
-import random
 import json
 import os
-from dotenv import load_dotenv
-import aiohttp
+import random
+import requests
 import tempfile
+from discord import app_commands
+from discord.ext import commands
 
-load_dotenv()
+from bot import PIXABAY_API
+from bot.config import Bot
 
 
-
-class Media_Commands(commands.Cog):
+class MediaCommands(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
@@ -52,8 +50,7 @@ class Media_Commands(commands.Cog):
 
     @app_commands.command(name= "images_search", description="search a images")
     async def image_search(self, interaction : discord.Interaction, topic:str):
-        key = os.getenv("PIXABAY_API")
-        response = requests.get(f"https://pixabay.com/api/?key={key}&q={topic}")
+        response = requests.get(f"https://pixabay.com/api/?key={PIXABAY_API}&q={topic}")
 
         data = response.json()
 
@@ -88,7 +85,6 @@ class Media_Commands(commands.Cog):
 
     @app_commands.command(name="search_video", description="Search a video")
     async def search_video(self,interaction: discord.Interaction, topic: str):
-        key = os.getenv("PIXABAY_API")
         if not key:
             await interaction.response.send_message("API key not found.")
             return
@@ -96,7 +92,7 @@ class Media_Commands(commands.Cog):
         # Defer the response to give more time for processing
         await interaction.response.defer()
 
-        response = requests.get(f"https://pixabay.com/api/videos/?key={key}&q={topic}")
+        response = requests.get(f"https://pixabay.com/api/videos/?key={PIXABAY_API}&q={topic}")
         if response.status_code != 200:
             await interaction.followup.send("Failed to fetch data from Pixabay.")
             return
@@ -171,4 +167,4 @@ class Media_Commands(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Media_Commands(bot))
+    await bot.add_cog(MediaCommands(bot))

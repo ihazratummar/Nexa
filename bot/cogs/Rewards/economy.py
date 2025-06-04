@@ -1,19 +1,19 @@
-from builtins import int
 import discord
+from builtins import int
 from discord.ext import commands
 from bot.config import Bot
-from bot.core.constant import Color
+from bot.core.constant import Color, DbCons
 
 
 class Economy(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
         self.currency_icon = "💰"
-        self.db = bot.mongo_client["User_Database"]
-        self.collection =self.db["Economy"]
+        self.db = bot.mongo_client[DbCons.USER_DATABASE]
+        self.collection =self.db[DbCons.ECONOMY_COLLECTION]
  
 
-    @commands.hybrid_command(name="balance", with_app_command=True)
+    @commands.hybrid_command(name="balance", description = "Check your Wallet and Bank balance", with_app_command=True)
     async def balance(self, ctx: commands.Context):
         user_id = str(ctx.author.id)
         user_data = self.collection.find_one({"_id": user_id})
@@ -27,6 +27,7 @@ class Economy(commands.Cog):
                 description=f"Wallet -{self.currency_icon} {wallet}\nBank -{self.currency_icon} {bank}",
                 color=discord.Color.from_str(Color.PRIMARY_COLOR),
             )
+            embed.set_thumbnail(url=ctx.author.avatar.url)
             await ctx.send(embed=embed)
         else:
             await ctx.send("You don't have an account yet. Use `/create_account` to create one.")

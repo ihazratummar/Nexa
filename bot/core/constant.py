@@ -22,8 +22,16 @@ class _DbCons:
     def __init__(self):
         pass
 
+    #Database Name
     LEVEL_DATABASE = "Level_Database"
+    USER_DATABASE = "User_Database"
+    BOT_DATABASE = "BotDatabase"
+
+
+    #Collection Name
     LEVEL_COLLECTION = "level"
+    ECONOMY_COLLECTION = "Economy"
+    GUILD_SETTINGS_COLLECTION = "guild_settings"
 
 
 DbCons = _DbCons()

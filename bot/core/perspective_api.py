@@ -10,7 +10,7 @@ PERSPECTIVE_API_URL = "https://commentanalyzer.googleapis.com/v1alpha1/comments:
 SIGHTENGINE_API_USER = os.getenv("SIGHTENGINE_API_USER")
 SIGHTENGINE_API_SECRET = os.getenv("SIGHTENGINE_API_SECRET")
 
-SIGHTENGINE_MODELS = ('nudity-2.1,alcohol,recreational_drug,medical,text-content,face-attributes,gore-2.0,violence,self-harm')
+SIGHTENGINE_MODELS = 'nudity-2.1,alcohol,recreational_drug,medical,text-content,face-attributes,gore-2.0,violence,self-harm'
 
 async def analyze_comment(comment: str) -> float:
     payload = {
@@ -28,7 +28,9 @@ async def analyze_comment(comment: str) -> float:
                 return 0.0
             data = await response.json()
             return data["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
-        
+        return None
+    return None
+
 
 async def check_image_content(image_url: str) -> dict:
     """
@@ -45,7 +47,10 @@ async def check_image_content(image_url: str) -> dict:
             },
         ) as resp:
             return await resp.json()
-        
+        return None
+    return None
+
+
 async def check_video_content(video_url: str) -> dict:
     """
     Sends the video to Sightengine and returns a dictionary of key risks and their scores.
@@ -61,7 +66,9 @@ async def check_video_content(video_url: str) -> dict:
             },
         ) as resp:
             return await resp.json()
-        
+        return None
+    return None
+
 
 def extract_scores(data):
     flagged = []

@@ -1,19 +1,22 @@
 import discord
 from discord.ext import commands
 
+from bot.core.constant import DbCons
+
+
 class Logs(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.mongo_client["BotDatabase"]
-        self.collection = self.db["guild_settings"]
+        self.db = bot.mongo_client[DbCons.BOT_DATABASE]
+        self.collection = self.db[DbCons.GUILD_SETTINGS_COLLECTION]
 
     def load_log_channels(self, guild_id: str) -> int:
         guild_data = self.collection.find_one({"guild_id": str(guild_id)})
         if not guild_data:
-            return
+            return None
         log_channel_id = guild_data.get("log_channel")
         if not log_channel_id:
-            return
+            return None
         return int(log_channel_id)
 
     @commands.Cog.listener()

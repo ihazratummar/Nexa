@@ -3,12 +3,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+from bot import mongo_client
 
-
-load_dotenv()
-
-mongo_uri = os.getenv("MONGO_CONNECTION")
-mongo_client = MongoClient(mongo_uri)
 
 exts = [
     "bot.cogs.error",
