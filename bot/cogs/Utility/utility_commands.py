@@ -240,8 +240,13 @@ class Utility(commands.Cog):
     @commands.hybrid_command(name="clear")
     @commands.has_permissions(manage_messages = True)
     async def clear(self, ctx: commands.Context, number: int = 20):
+        await ctx.defer()
+
+        message = await ctx.send(f"Deleting {number} messages...", ephemeral=True)
+
         deleted = await ctx.channel.purge(limit= number +2)
         await ctx.send(f"Deleted {len(deleted)-2} messages.", delete_after=5, ephemeral= True)
+        await message.delete(delay= 5)
 
 
     @commands.hybrid_command(name="urban", description = "Get the definition of a term(word) from Urban Dictionary.")
