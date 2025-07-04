@@ -5,7 +5,6 @@ from bot.config import Bot
 from bot import token
 
 load_dotenv()
-# token = os.getenv("DISCORD_TOKEN")
 
 
 if __name__ == "__main__":
