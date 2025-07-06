@@ -117,13 +117,13 @@ class AutoMod(commands.Cog):
 
         guild_data = self.collection.find_one({"guild_id": guild_id})
 
-        if not guild_data:
-            await ctx.send("Guild data not found.")
-            return
+        # if not guild_data:
+        #     await ctx.send("Guild data not found.")
+        #     return
         
         self.collection.update_one(
             {"guild_id": guild_id},
-            {"$set": {"automod_enabled": True}},
+            {"$set": {"automod_enabled": True}}, upsert=True,
         )
         await ctx.send("AutoMod has been enabled for this guild.")
 
