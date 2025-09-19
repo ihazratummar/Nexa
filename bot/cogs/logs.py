@@ -1,23 +1,24 @@
 import discord
 from discord.ext import commands
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 from bot.core.constant import DbCons
 
 
 class Logs(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot):
         self.bot = bot
-        self.db = bot.mongo_client[DbCons.BOT_DATABASE]
-        self.collection = self.db[DbCons.GUILD_SETTINGS_COLLECTION]
+        self.db = self.bot.db
+        self.guild_collection:AsyncIOMotorCollection = self.db[DbCons.GUILD_SETTINGS_COLLECTION.value]
 
-    def load_log_channels(self, guild_id: str) -> int:
-        guild_data = self.collection.find_one({"guild_id": str(guild_id)})
+    async def load_log_channels(self, guild_id: int) -> int | None:
+        guild_data = await self.guild_collection.find_one({"guild_id": guild_id})
         if not guild_data:
             return None
-        log_channel_id = guild_data.get("log_channel")
+        log_channel_id = guild_data.get("channels", {}).get("log_channel")
         if not log_channel_id:
             return None
-        return int(log_channel_id)
+        return log_channel_id
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
@@ -35,7 +36,7 @@ class Logs(commands.Cog):
 
 
     async def log_role_changes(self, before: discord.Member, after: discord.Member, added_roles, removed_roles):
-        log_channel_id = self.load_log_channels(after.guild.id)
+        log_channel_id =await self.load_log_channels(after.guild.id)
         if not log_channel_id:
             print(f'Log channel with ID {log_channel_id} not found.')
             return
@@ -109,8 +110,8 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: discord.User):
-        guild_id = str(guild.id)
-        log_channel_id = self.load_log_channels(guild_id)
+        guild_id = guild.id
+        log_channel_id = await self.load_log_channels(guild_id)
         if log_channel_id:
             log_channel = self.bot.get_channel(log_channel_id)
 
@@ -137,8 +138,8 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        guild_id = str(member.guild.id)
-        log_channel_id = self.load_log_channels(guild_id)
+        guild_id = member.guild.id
+        log_channel_id = await self.load_log_channels(guild_id)
         if log_channel_id:
             log_channel = member.guild.get_channel(log_channel_id)
 
@@ -166,22 +167,25 @@ class Logs(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def set_log_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
         """Set the log channel for role changes."""
-        guild_id = str(ctx.guild.id)
+        await ctx.defer()
 
-        guild_data = self.collection.find_one({"guild_id": guild_id})
+        if channel is None:
+            channel = ctx.channel
+
+        guild_id = ctx.guild.id
+
+        guild_data = self.guild_collection.find_one({"guild_id": guild_id})
         if not guild_data:
             await ctx.send("Guild data not found.")
             return
         
-        if channel is None:
-            await ctx.send("Please specify a channel.")
-            return
-        
-        channel_id = str(channel.id)
 
-        self.collection.update_one(
+        
+        channel_id = channel.id
+
+        await  self.guild_collection.update_one(
             {"guild_id": guild_id},
-            {"$set": {"log_channel": channel_id}}
+            {"$set": {"channels.log_channel": channel_id}}
         )
         await ctx.send(f"Log channel set to {channel.mention}.")
 
