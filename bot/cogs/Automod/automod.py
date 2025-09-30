@@ -1,24 +1,21 @@
 import discord
 from discord.ext import commands
-from bot.config import Bot
-import json
+from motor.motor_asyncio import AsyncIOMotorCollection
+from bot.core.constant import DbCons
 from bot.core.perspective_api import analyze_comment, check_image_content, extract_scores, check_video_content
-
-
 
 VIDEO_EXTENSIONS = [".mp4", ".mov", ".avi", ".webm"]
 IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"]
 
 class AutoMod(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot):
         self.bot = bot
-        self.db = bot.mongo_client["BotDatabase"]
-        self.collection = self.db["guild_settings"]
+        self.collection:AsyncIOMotorCollection = self.bot.db[DbCons.GUILD_SETTINGS_COLLECTION.value]
 
     async def auto_mod(self, message):
 
-        guild_id = str(message.guild.id)
-        guild_data = self.collection.find_one({"guild_id": guild_id})
+        guild_id = message.guild.id
+        guild_data = await self.collection.find_one({"guild_id": guild_id})
         if not guild_data:
             return
         automod_enabled = guild_data.get("automod_enabled", False)
@@ -45,7 +42,7 @@ class AutoMod(commands.Cog):
                     except discord.Forbidden:
                         pass
 
-                    log_channel_id = self.log_channels.get(str(message.guild.id))
+                    log_channel_id = guild_data.get("log_channel")
                     log_channel = self.bot.get_channel(log_channel_id)
                     if log_channel:
                         embed = discord.Embed(
@@ -110,22 +107,4 @@ class AutoMod(commands.Cog):
                     break
 
     
-    @commands.hybrid_command(name="enable_automod", description="Enable AutoMod")
-    @commands.has_permissions(administrator=True)
-    async def enable_automod(self, ctx: commands.Context):
-        guild_id = str(ctx.guild.id)
-
-        guild_data = self.collection.find_one({"guild_id": guild_id})
-
-        # if not guild_data:
-        #     await ctx.send("Guild data not found.")
-        #     return
-        
-        self.collection.update_one(
-            {"guild_id": guild_id},
-            {"$set": {"automod_enabled": True}}, upsert=True,
-        )
-        await ctx.send("AutoMod has been enabled for this guild.")
-
-async def setup(bot: commands.Bot):
-    await bot.add_cog(AutoMod(bot))
+    
