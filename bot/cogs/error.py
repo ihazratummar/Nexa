@@ -2,59 +2,62 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from bot.config import Bot
-import asyncio
+
+from bot.core.embed.embed_builder import log_embed
 
 
 class ErrorCog(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
-        bot.tree.on_error = self.on_app_command_error
+        bot.tree.on_error = self.on_command_error
 
-    async def on_app_command_error(
-        self, interaction: discord.Interaction, error: app_commands.AppCommandError
-    ):
-        if isinstance(error, app_commands.MissingRole):
-            role = interaction.guild.get_role(error.missing_role)
-            await interaction.response.send_message(f"Missing role Error: {role.name}", ephemeral=True)
-
-        elif isinstance(error, app_commands.MissingPermissions):
-            await interaction.response.send_message(
-                f"Missing permissions Error: {error}", ephemeral=True
-            )
-
-        elif isinstance(error, app_commands.CommandOnCooldown):
-            retry_after = round(error.retry_after)
-            await interaction.response.send_message(
-                f"Command OnCooldown Error. Try again after {retry_after} seconds.", ephemeral=True
-            )
-
-    ## this error for !command_error
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        if isinstance(error, commands.CommandNotFound):
-            # Using "ephemeral=True" is not valid for ctx.send, removing it
-            return await ctx.send(f"Command not found")
+    async def on_command_error(self, ctx: commands.Context, error):
+        if hasattr(ctx.command, 'on_error'):
+            return
 
-        elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"Incorrect arguments entered")
+        cog = ctx.cog
+        if cog and cog._get_overridden_method(cog.cog_command_error) is not None:
+            return
 
-        elif isinstance(error, commands.MissingPermissions):
-            perms = ", ".join(error.missing_permissions)
-            return await ctx.send(f"You need {perms} to use this command.")
+        error = getattr(error, 'original', error)
 
+        error_map = {
+            commands.CommandNotFound: ("Command Not Found", "The command you tried to use does not exist."),
+            commands.RoleNotFound: "One or more roles were not found. Make sure you mention or pass valid roles.",
+            commands.DisabledCommand: ("Command Disabled", f"The command `{ctx.command}` is currently disabled."),
+            commands.NoPrivateMessage: ("Server Only Command", f"The command `{ctx.command}` cannot be used in private messages."),
+            commands.PrivateMessageOnly: ("DM Only Command", f"The command `{ctx.command}` can only be used in private messages."),
+            commands.NotOwner: ("Owner Only Command", f"The command `{ctx.command}` can only be used by the bot owner."),
+            commands.MissingPermissions: ("Missing Permissions","You do not have the required permissions to run this command."),
+            commands.BotMissingPermissions: ("Bot Missing Permissions", "I do not have the required permissions to run this command."),
+            commands.CheckFailure: ("Permission Denied", "You do not have permission to use this command."),
+            app_commands.CommandNotFound: ("App Command Not Found", "The application command you tried to use does not exist."),
+            app_commands.MissingPermissions: ("Missing App Permissions", "You do not have the required permissions to run this application command."),
+            app_commands.BotMissingPermissions: ("Bot Missing App Permissions","I do not have the required permissions to run this application command."),
+            app_commands.MissingRole: "One or more roles were not found."
+        }
+
+        error_type = type(error)
+        if error_type in error_map:
+            title, description = error_map[error_type]
+            embed = log_embed(title=title, description=description, color=discord.Color.orange())
+            await ctx.send(embed=embed, ephemeral=True)
         elif isinstance(error, commands.CommandOnCooldown):
-            return await ctx.send(f"Command on cooldown. Try again later.")
-
-        elif isinstance(error, commands.ConversionError):
-            return await ctx.send("Invalid arguments provided.")
-
-        elif isinstance(error, commands.MemberNotFound):
-            return await ctx.send(f"Member not found.")
-
+            embed = log_embed(
+                title="Command on Cooldown",
+                description=f"This command is on cooldown. Please try again in {error.retry_after:.2f}s.",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed, ephemeral=True)
         else:
-            # Logging the error or handling it in some way before re-raising
-            print(f"Unhandled error: {error}")
-            raise error
+            embed = log_embed(
+                title="An Unexpected Error Occurred",
+                description="An unexpected error has occurred. The developers have been notified.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed, ephemeral=True)
+            print(error)
 
 
 async def setup(bot: commands.Bot):
