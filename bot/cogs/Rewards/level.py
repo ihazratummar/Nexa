@@ -1,37 +1,40 @@
 from builtins import int
+
 import discord
-from discord.ext import commands
-from bot.config import Bot
-from discord import app_commands , File
-from easy_pil import Canvas, Editor, font , load_image_async
 from PIL import Image
+from discord import File
+from discord.ext import commands
+from easy_pil import Canvas, Editor, font, load_image_async
+from motor.motor_asyncio import AsyncIOMotorCollection
+
 from bot.core.constant import DbCons
 
 
 class Level(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot):
         self.bot = bot
-        self.db = bot.mongo_client[DbCons.LEVEL_DATABASE]
+        self.db = self.bot.db
+        self.level_collection : AsyncIOMotorCollection = self.db[DbCons.LEVEL_COLLECTION.value]
 
-    async def level_up(self, message):
+    async def level_up(self, message: discord.Message):
         if not message.author.bot and not message.content.startswith(self.bot.command_prefix):
-            user_id = str(message.author.id)
-            collection = self.db[f"{message.guild.name}({message.guild.id})"]
+            user_id = message.author.id
+            guild_id = message.guild.id
             # Use upsert to insert or update the document
-            collection.update_one(
-                {"_id": user_id,},
+            await self.level_collection.update_one(
+                {"user_id": user_id, "guild_id": guild_id},
                 {"$inc": {"xp": 5}, "$setOnInsert": {"level": 0, "name": message.author.name}},
                 upsert=True
             )
 
-            user_data = collection.find_one({"_id": user_id})
+            user_data = await self.level_collection.find_one({"user_id": user_id, "guild_id": guild_id})
             if user_data:
                 xp = user_data.get("xp", 0)
                 level = user_data.get("level", 0)
                 new_level = self.calculate_level(xp= xp, current_level=level)
                 if new_level > user_data.get("level", 0):
-                    collection.update_one(
-                        {"_id": user_id},
+                    await self.level_collection.update_one(
+                        {"user_id": user_id, "guild_id": guild_id},
                         {"$set": {"level": new_level}}
                     )
                     await message.channel.send(
@@ -79,11 +82,11 @@ class Level(commands.Cog):
         return level_thresholds[-1][0]  # If max level reached, return a max threshold
 
     @commands.hybrid_command("rank")
-    async def rank(self, interaction: commands.context):
+    async def rank(self, ctx: commands.Context):
         """Check your current XP"""
-        user_id = str(interaction.author.id)
-        collection = self.db[f"{interaction.guild.name}({interaction.guild.id})"]
-        user_data = collection.find_one({"_id": user_id})
+        user_id = ctx.author.id
+        guild_id = ctx.guild.id
+        user_data = await self.level_collection.find_one({"user_id": user_id, "guild_id": guild_id})
 
         if user_data:
             xp = user_data.get("xp", 0)
@@ -93,12 +96,12 @@ class Level(commands.Cog):
             previous_level_xp = self.get_next_level_xp(level - 1) if level > 0 else 0
             progress = ((xp - previous_level_xp) / (next_level_xp - previous_level_xp)) * 100
 
-            background = Image.open("Bot/cogs/Rewards/assests/galaxy.jpg")
+            background = Image.open("bot/cogs/Rewards/assets/galaxy.jpg")
 
             image = Editor(background).resize((740, 260))
             user_name_font = font.Font.poppins(variant = 'bold', size = 30)
             xp_text_font = font.Font.poppins(variant = 'bold', size = 20)
-            profile_image = await load_image_async(str(interaction.author.avatar._url))
+            profile_image = await load_image_async(str(ctx.author.avatar.url))
             profile_image = Editor(profile_image).resize((120,120)).rounded_corners(radius=20)
 
             profile_picture_background = Canvas((150, image.image.size[1]), color=(0, 66, 108, 255))
@@ -131,7 +134,7 @@ class Level(commands.Cog):
             progress_bar.bar(position=(0,0), max_width=500, height=25, percentage=progress, fill= (255, 255, 255), color= (118, 247, 251) ,radius=10)
 
             #text
-            image.text(position=(220, 120), text=f"{interaction.author.name}", font= user_name_font ,color="white")
+            image.text(position=(220, 120), text=f"{ctx.author.name}", font= user_name_font, color="white")
             #xp tex
             image.text(position=(600, 135), text=f"{xp} / {next_level_xp} XP", font=xp_text_font, color= 'white')
 
@@ -146,23 +149,23 @@ class Level(commands.Cog):
             image.paste(progress_bar.image, (220, 160))
 
 
-            file  = File(fp= image.image_bytes, filename='rankcad.png')
+            file  = File(fp= image.image_bytes, filename='rankcard.png')
+            await ctx.send(file=file)
         else:
             embed = discord.Embed(
                 title=" ",
                 description="You don't have any XP yet. Start chatting to earn XP!",
                 color=discord.Color.blurple(),
             )
-            await interaction.send(embed=embed)
+            await ctx.send(embed=embed)
         
-        await interaction.send(file=file)
 
     @commands.hybrid_command("level")
-    async def level(self, interaction: commands.context):
+    async def level(self, ctx: commands.Context):
         """Check your current level"""
-        user_id = str(interaction.author.id)
-        collection = self.db[f"{interaction.guild.name}({interaction.guild.id})"]
-        user_data = collection.find_one({"_id": user_id})
+        user_id = ctx.author.id
+        guild_id = ctx.guild.id
+        user_data =await self.level_collection.find_one({"user_id": user_id, "guild_id": guild_id})
         
         if user_data:
             level = user_data.get("level", 0)
@@ -178,25 +181,25 @@ class Level(commands.Cog):
                 color=discord.Color.blurple(),
             )
         
-        await interaction.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @commands.hybrid_command("resetxp")
-    async def resetxp(self, interaction: commands.context):
+    async def resetxp(self, ctx: commands.Context):
         """Reset your XP"""
-        user_id = str(interaction.author.id)
-        collection = self.db[f"{interaction.guild.name}({interaction.guild.id})"]
-        collection.update_one({"_id": user_id}, {"$set": {"xp": 0, "level": 0}})
+        user_id = ctx.author.id
+        guild_id = ctx.guild.id
+        await self.level_collection.update_one({"user_id": user_id, "guild_id": guild_id}, {"$set": {"xp": 0, "level": 0}})
         
-        await interaction.send(
+        await ctx.send(
             "Your XP has been reset.", ephemeral=True
         )
 
     @commands.hybrid_command("delete_account")
-    async def delete_account(self, ctx: commands.context):
-        user_id = str(ctx.author.id)
-        filter_account = {"_id": user_id}
-        collection = self.db[f"{ctx.guild.name}({ctx.guild.id})"]
-        result = collection.delete_one(filter_account)
+    async def delete_account(self, ctx: commands.Context):
+        user_id = ctx.author.id
+        guild_id = ctx.guild.id
+        filter_account = {"user_id": user_id, "guild_id": guild_id}
+        result = await self.level_collection.delete_one(filter_account)
         if result.deleted_count >0 :
             await ctx.send(f"User with name {ctx.author.name} deleted successfully.", ephemeral =True)
         else:
@@ -210,27 +213,27 @@ class Level(commands.Cog):
         if member is None:
             member = ctx.author
 
-        user_id = str(member.id)
-        collection = self.db[f"{ctx.guild.name}({ctx.guild.id})"]
-        user_data = collection.find_one({"_id": user_id})
+        user_id = member.id
+        guild_id = ctx.guild.id
+        user_data = await self.level_collection.find_one({"user_id": user_id, "guild_id": guild_id})
         if user_data:
             new_level = user_data.get("level", 0)
-            collection.update_one(
-                {"_id": user_id},
+            await self.level_collection.update_one(
+                {"user_id": user_id, "guild_id": guild_id},
                 {"$inc": {"xp": xp}},
                 upsert=True
             )
         else:
-            collection.update_one(
-                {"_id": user_id,},
+            await self.level_collection.update_one(
+                {"user_id": user_id, "guild_id": guild_id},
                 {"$inc": {"xp": xp}, "$setOnInsert": {"level": 0, "name": member.name}},
                 upsert=True
             )
         
         if user_data:
             if new_level > user_data.get("level", 0):
-                collection.update_one(
-                    {"_id": user_id},
+                await self.level_collection.update_one(
+                    {"user_id": user_id, "guild_id": guild_id},
                     {"$set": {"level": new_level}}
                 )
                 await ctx.send(

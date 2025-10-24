@@ -88,7 +88,7 @@ class WelcomeCommands(commands.Cog):
 
     @commands.hybrid_command(name="boost_channel")
     @commands.has_permissions(administrator=True)
-    async def boost_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
+    async def set_boost_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
         await ctx.defer()
 
         if not channel:

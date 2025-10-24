@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6e701a34-fe08-4a3f-afdf-f5519053e972" name="Changes" comment="New Errors Cogs and logs">
+      <change afterPath="$PROJECT_DIR$/.idea/Nexa.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TODO" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fonts/Lato-Bold.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/fonts/path_to_notocoloremoji.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backup/mongo/Nexa.embeds.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backup/mongo/Nexa.guild_settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dashboard/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/db_and_collections.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/A-UmmarBot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/A-UmmarBot.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/discord.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lato-Bold.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/balance_banner.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Automod/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Automod/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Automod/automod.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Automod/automod.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Automod/mod_commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Automod/mod_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/assests/galaxy.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/assets/galaxy.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/avatar_mask.png" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/avatar_mask.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/components/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/components/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/economy.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/economy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/level.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Rewards/user_balances.json" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Rewards/user_balances.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Utility/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Utility/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/Utility/utility_commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/Utility/utility_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/embed_builder.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/embed_builder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/error.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/error.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/fun_commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/fun_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/games.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/games.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/general.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/general.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/logs.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/logs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/media_commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/media_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/notification.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/welcome/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/welcome/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/welcome/boosts.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/welcome/boosts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/welcome/welcome_commands.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/welcome/welcome_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/cogs/welcome/welcomer.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/cogs/welcome/welcomer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/Buttons/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/Buttons/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/Buttons/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/Buttons/buttons.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/constant.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/constant.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/embed/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/embed/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/embed/embed_builder.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/embed/embed_builder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/models/guild_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/models/guild_models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/openai_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/openai_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/core/perspective_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/core/perspective_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/downloaded_files.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/downloaded_files.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/followers.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/invite.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/roasts.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/roasts.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/path_to_notocoloremoji.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="2wyXazJYc71e5SaUS1NxgFPE5r6" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "staging",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/Volumes/External SSD/Coding/python/discord bot/Nexa",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Coding\Python\discord bot\Nexa\bot\cogs\welcome" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106" />
+        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6e701a34-fe08-4a3f-afdf-f5519053e972" name="Changes" comment="" />
+      <created>1747014855139</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1747014855139</updated>
+      <workItem from="1759512902902" duration="186000" />
+      <workItem from="1759550937761" duration="47000" />
+      <workItem from="1761311524801" duration="85000" />
+      <workItem from="1761311632516" duration="2378000" />
+    </task>
+    <task id="LOCAL-00001" summary="Refactor bot to centralize environment variable usage, improve MongoDB database and collection handling with constants, and streamline API integrations across cogs.">
+      <option name="closed" value="true" />
+      <created>1749063345039</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1749063345039</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Fix Welcomer and logs and change the database">
+      <option name="closed" value="true" />
+      <created>1758298463127</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1758298463127</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fix Welcomer and change the database">
+      <option name="closed" value="true" />
+      <created>1759241184134</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1759241184134</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Automod change to new database">
+      <option name="closed" value="true" />
+      <created>1759241367548</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1759241367548</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Change enbaled_automod to toggle_automod">
+      <option name="closed" value="true" />
+      <created>1759242165622</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1759242165622</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added Embed Builder">
+      <option name="closed" value="true" />
+      <created>1759242225920</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1759242225920</updated>
+    </task>
+    <task id="LOCAL-00007" summary="New Errors Cogs and logs">
+      <option name="closed" value="true" />
+      <created>1759293290132</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1759293290132</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Refactor bot to centralize environment variable usage, improve MongoDB database and collection handling with constants, and streamline API integrations across cogs." />
+    <MESSAGE value="Fix Welcomer and logs and change the database" />
+    <MESSAGE value="Fix Welcomer and change the database" />
+    <MESSAGE value="Automod change to new database" />
+    <MESSAGE value="Change enbaled_automod to toggle_automod" />
+    <MESSAGE value="Added Embed Builder" />
+    <MESSAGE value="New Errors Cogs and logs" />
+    <option name="LAST_COMMIT_MESSAGE" value="New Errors Cogs and logs" />
+  </component>
+</project>

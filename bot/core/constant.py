@@ -1,3 +1,6 @@
+from enum import  Enum
+
+
 class _Color:
     """
     Enum for color codes used in embeds.
@@ -14,27 +17,22 @@ Color = _Color()
 
 ## Database Constants
 
-class _DbCons:
+class DbCons(Enum):
     """
     Database Constants
     """
 
-    def __init__(self):
-        pass
-
     #Database Name
-    LEVEL_DATABASE = "Level_Database"
-    USER_DATABASE = "User_Database"
-    BOT_DATABASE = "BotDatabase"
+    DATABASE_NAME = "Nexa"
 
 
     #Collection Name
     LEVEL_COLLECTION = "level"
     ECONOMY_COLLECTION = "Economy"
     GUILD_SETTINGS_COLLECTION = "guild_settings"
-
-
-DbCons = _DbCons()
+    LAST_SEEN_COLLECTION = "last_seen"
+    SCHEDULE_EVENTS_COLLECTION = "scheduled_events"
+    EMBED_COLLECTION = "embeds"
 
 
 class _Channel:
