@@ -22,6 +22,7 @@ exts = [
     "bot.cogs.embed_builder"
 ]
 
+#new change
 
 class Bot(commands.AutoShardedBot):
     def __init__(self, command_prefix: str, intents: discord.Intents,  **kwargs):
