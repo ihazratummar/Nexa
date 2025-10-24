@@ -1,22 +1,22 @@
-import discord
 from builtins import int
+
+import discord
 from discord.ext import commands
-from bot.config import Bot
+from motor.motor_asyncio import AsyncIOMotorCollection
 from bot.core.constant import Color, DbCons
 
 
 class Economy(commands.Cog):
-    def __init__(self, bot: Bot):
+    def __init__(self, bot):
         self.bot = bot
         self.currency_icon = "💰"
-        self.db = bot.mongo_client[DbCons.USER_DATABASE]
-        self.collection =self.db[DbCons.ECONOMY_COLLECTION]
+        self.collection:AsyncIOMotorCollection =self.bot.db[DbCons.ECONOMY_COLLECTION]
  
 
     @commands.hybrid_command(name="balance", description = "Check your Wallet and Bank balance", with_app_command=True)
     async def balance(self, ctx: commands.Context):
         user_id = str(ctx.author.id)
-        user_data = self.collection.find_one({"_id": user_id})
+        user_data = await self.collection.find_one({"_id": user_id})
 
         if user_data:
             wallet = user_data.get("wallet", 0)
@@ -35,12 +35,12 @@ class Economy(commands.Cog):
     @commands.hybrid_command(name="create_account", with_app_command=True)
     async def create_account(self, ctx: commands.Context):
         user_id = str(ctx.author.id)
-        user_data = self.collection.find_one({"_id": user_id})
+        user_data = await self.collection.find_one({"_id": user_id})
 
         if user_data:
             await ctx.send("You already have an account.")
         else:
-            self.collection.insert_one(
+            await self.collection.insert_one(
                 {"_id": user_id, "wallet": 500, "bank":0, "inventory": [], "last_crime": 0, "last_rob": 0, "last_daily":0 }
             )
             await ctx.send("Account created successfully!")
@@ -48,7 +48,7 @@ class Economy(commands.Cog):
     @commands.hybrid_command(name="daily", with_app_command=True)
     async def daily(self, ctx: commands.Context):
         user_id = str(ctx.author.id)
-        user_data = self.collection.find_one({"_id": user_id})
+        user_data =await self.collection.find_one({"_id": user_id})
 
         if not user_data:
             await ctx.send("You don't have an account yet. Use `/create_account` to create one.")
@@ -62,7 +62,7 @@ class Economy(commands.Cog):
             return
 
         reward = 1000
-        self.collection.update_one(
+        await self.collection.update_one(
             {"_id": user_id},
             {"$inc": {"wallet": reward}, "$set": {"last_daily": current_time}},
         )
@@ -71,7 +71,7 @@ class Economy(commands.Cog):
     @commands.hybrid_command(name="deposit", with_app_command=True)
     async def deposit(self, ctx: commands.Context, amount: int):
         user_id = str(ctx.author.id)
-        user_data = self.collection.find_one({"_id": user_id})
+        user_data = await self.collection.find_one({"_id": user_id})
 
         if not user_data:
             await ctx.send("You don't have an account yet. Use `/create_account` to create one.")
@@ -83,7 +83,7 @@ class Economy(commands.Cog):
             await ctx.send("You don't have enough money in your wallet.")
             return
 
-        self.collection.update_one(
+        await self.collection.update_one(
             {"_id": user_id},
             {"$inc": {"wallet": -amount, "bank": +amount}},
         )
@@ -93,7 +93,7 @@ class Economy(commands.Cog):
     @commands.hybrid_command(name="withdraw", with_app_command=True)
     async def withdraw(self, ctx: commands.Context, amount: int):
         user_id  = str(ctx.author.id)
-        user_data = self.collection.find_one({"_id": user_id})
+        user_data = await self.collection.find_one({"_id": user_id})
         if not user_data:
             await ctx.send("You don't have an account yet. Use `/create_account` to create one.")
             return
@@ -102,7 +102,7 @@ class Economy(commands.Cog):
         if amount > bank:
             await ctx.send("You don't have enough money in your bank.")
             return
-        self.collection.update_one(
+        await self.collection.update_one(
             {"_id": user_id},
             {"$inc": {"wallet": +amount, "bank": -amount}},
         )

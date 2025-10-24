@@ -156,41 +156,19 @@ class Fun(commands.Cog):
         response = requests.get(url, headers={'X-Api-Key':f'{API_NINJA}'})
         if response.status_code != 200:
             await ctx.send("Connection Failed")
-        
+
         data =response.json()
         fact = [fact['fact'] for fact in data][0]
         embed=discord.Embed(title=f"Fact", description= None, color=0x00FFFF)
         embed.add_field(name=f">>> {fact}", value=" ", inline=False)
-        
+
         if user:
             await ctx.send(user.mention,embed=embed)
         else:
             await ctx.send(embed=embed)
 
 
-    @commands.hybrid_command(name="roast", description = "Roast your friend")
-    @commands.cooldown(4,10, commands.BucketType.user)
-    async def roast(self, ctx: commands.Context , user: discord.Member):
 
-        with open("data/roasts.json", 'r') as file:
-            roast_data = json.load(file)
-
-        random_roast = random.choice(roast_data['roasts'])
-        embed=discord.Embed(title=f"Roasted 🫨", description=None, color=0x00FFFF)
-        embed.add_field(name=f"{random_roast}", value="", inline=False)
-        await ctx.send(user.mention, embed= embed)
-
-    @commands.hybrid_command(name="insult", description = "Insult your friend")
-    @commands.cooldown(2,10, commands.BucketType.user)
-    async def insult(self, ctx: commands.Context , user: discord.Member):
-        response = requests.get("https://evilinsult.com/generate_insult.php?lang=en&type=json")
-        data = response.json()
-        insult = data['insult']
-        embed=discord.Embed(title=f"Insulted 🫣", description=None, color=0x00FFFF)
-        embed.add_field(name=f"{insult}", value="", inline=False)
-        await ctx.send(user.mention, embed= embed)
-
-    
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Fun(bot))

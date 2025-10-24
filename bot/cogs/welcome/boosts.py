@@ -11,18 +11,6 @@ class Boosts(commands.Cog):
         self.db = self.bot.db
         self.guild_collection: AsyncIOMotorCollection = self.db[DbCons.GUILD_SETTINGS_COLLECTION.value]
 
-    @commands.hybrid_command(name="testboost")
-    async def testboost(self, ctx: commands.Context):
-        guild = ctx.guild
-        before = guild
-        after = guild
-
-        before_boost = before.premium_subscription_count
-        after.premium_subscription_count += 1  # Simulating a boost
-        await self.on_guild_update(before, after)
-        await ctx.send(
-            f"Test boost event triggered. Before Boost: {before_boost} After Boost: {after.premium_subscription_count}")
-
 
     @commands.Cog.listener()
     async def on_boost(self, guild: discord.Guild, booster: discord.Member):

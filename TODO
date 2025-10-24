@@ -1,0 +1,62 @@
+# 🗣️ General
+TODO: Add /ytsearch - search YouTube videos by keyword
+TODO: Add /quote - get a random inspirational quote
+
+# 🎉 Fun
+TODO: Add /truth - get a random truth question
+TODO: Add /dare - get a random dare
+TODO: Add /8ball - classic yes/no/maybe fun command
+
+# 🎮 Games
+TODO: Add /rps - play rock-paper-scissors with the bot
+TODO: Add /trivia - answer a random trivia question
+
+# 👋 ServerSetup (Welcome)
+TODO: Add /set_boost_message - customize server boost message
+TODO: Add /set_boost_channel - set the channel for boost announcements
+TODO: Add /set_bot_role_permission - set role permission for bots
+
+# 💎 Boosts
+TODO: Add /on_boost_message - test the boost message manually
+
+# 🛡️ Moderation
+TODO: Add /kick - kick a user from the server
+TODO: Add /mute - temporarily mute a user
+TODO: Add /unmute - remove mute from a user
+TODO: Add /warn - warn a user
+TODO: Add /clearwarns - clear all warnings for a user
+TODO: Add /lock - lock a text channel
+TODO: Add /unlock - unlock a text channel
+TODO: Add /modlog - show or set moderation log settings
+
+# 🧰 Utility
+TODO: Add /uptime - show how long the bot has been running
+TODO: Add /stats - show bot statistics (servers, users, ping)
+TODO: Add /translate - translate text to a selected language
+TODO: Add /weather - get current weather for a city
+TODO: Add /serverbanner - display the server’s banner
+TODO: Add /servericon - display the server’s icon
+
+# 📜 Logs
+TODO: Add /viewlogs - view recent logs or settings
+TODO: Add /logsettings - manage which events are logged
+
+# 🧱 EmbedBuilder
+TODO: Add /embed_preset_edit_field - edit a specific embed field
+TODO: Add /embed_preset_clone - duplicate an existing embed preset
+
+# 🔗 CrossServer (Main Feature)
+TODO: Add /link_channel - link two channels across servers
+TODO: Add /unlink_channel - unlink a connected channel
+TODO: Add /list_links - list all linked channels
+TODO: Add /sync_nicknames - sync nicknames across servers
+TODO: Add /toggle_auto_sync - toggle automatic nickname sync
+
+# 💰 Premium
+TODO: Add /premium_info - show premium plans and features
+TODO: Add /activate_premium - activate premium key or code
+
+# 👨‍💻 DevTools (Owner Only)
+TODO: Add /reload - reload bot cogs or modules
+TODO: Add /shutdown - safely shut down the bot
+TODO: Add /eval - evaluate code (owner only)
