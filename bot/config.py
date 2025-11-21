@@ -14,8 +14,6 @@ exts = [
     "bot.cogs.media_commands",
     "bot.cogs.games",
     "bot.cogs.welcome",
-    # "bot.cogs.Rewards.level",
-    # "bot.cogs.Rewards.economy",
     "bot.cogs.Automod",
     "bot.cogs.Utility.utility_commands",
     "bot.cogs.logs",
