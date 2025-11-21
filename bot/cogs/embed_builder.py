@@ -43,12 +43,12 @@ class EmbedBuilder(commands.Cog):
         )
         if thumb := preset.get("thumbnail"):
             url = replace_tokens(thumb)
-            if url is not " ":
+            if url != " ":
                 embed.set_thumbnail(url=url)
 
         if img := preset.get("image"):
             url = replace_tokens(img)
-            if url is not " ":
+            if url != " ":
                 embed.set_image(url=url)
 
         if footer := preset.get("footer"):
