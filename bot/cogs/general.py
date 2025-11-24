@@ -1,15 +1,8 @@
-import asyncio
-import discord
-import re
 import requests
 from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
 
-from bot import openai_client, WEATHER_API
 from bot.config import Bot
-from ..core.Buttons.buttons import LinksButton
-from ..core.openai_utils import get_chat_completion
 
 
 class General(commands.Cog):

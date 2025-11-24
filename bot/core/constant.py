@@ -33,12 +33,3 @@ class DbCons(Enum):
     LAST_SEEN_COLLECTION = "last_seen"
     SCHEDULE_EVENTS_COLLECTION = "scheduled_events"
     EMBED_COLLECTION = "embeds"
-
-
-class _Channel:
-    def __init__(self):
-        pass
-
-    DEV_NOTIFICATION_CHANNEL = 1246450850000539678
-
-Channel = _Channel()
