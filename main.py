@@ -1,13 +1,11 @@
 import logging
+import os
 
 import discord
-import os
 from dotenv import load_dotenv
-from bot.config import Bot
-from bot import token
-from multiprocessing import Process
-from dashboard.main import run_dashboard
 
+from bot import token
+from bot.config import Bot
 
 load_dotenv()
 
@@ -29,9 +27,6 @@ if __name__ == "__main__":
     else:
         prefix = "n!"
 
-    # Run the dashboard in a separate process
-    dashboard_process = Process(target=run_dashboard)
-    dashboard_process.start()
 
     bot = Bot(command_prefix=prefix, intents=discord.Intents.all(),  help_command= None )
     bot.run(token=token)

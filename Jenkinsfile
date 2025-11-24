@@ -15,7 +15,7 @@ pipeline {
                     $class: 'GitSCM',
                     branches: [[name: 'main']],
                     userRemoteConfigs: [[
-                        url: 'https://github.com/ihazratummar/your-discord-bot-repo.git',
+                        url: 'https://github.com/ihazratummar/Nexa',
                         credentialsId: 'github-creds'
                     ]]
                 ])
