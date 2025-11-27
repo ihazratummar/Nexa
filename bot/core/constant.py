@@ -33,3 +33,4 @@ class DbCons(Enum):
     LAST_SEEN_COLLECTION = "last_seen"
     SCHEDULE_EVENTS_COLLECTION = "scheduled_events"
     EMBED_COLLECTION = "embeds"
+    COMMAND_SETTINGS = "command_settings"

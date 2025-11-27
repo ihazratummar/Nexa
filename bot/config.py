@@ -6,6 +6,7 @@ from discord.ext import commands
 
 from bot import mongo_client
 from bot.core.constant import DbCons
+from bot.core.models.guild_models import CommandConfig
 
 exts = [
     "bot.cogs.error",
@@ -27,6 +28,7 @@ class Bot(commands.AutoShardedBot):
         super().__init__(command_prefix, intents=intents, **kwargs)
         self.mongo_client = mongo_client
         self.db = self.mongo_client[DbCons.DATABASE_NAME.value]
+        self.command_settings = self.db[DbCons.COMMAND_SETTINGS.value]
         self.scheduler = AsyncIOScheduler()
 
     async def on_ready(self):
@@ -91,4 +93,15 @@ class Bot(commands.AutoShardedBot):
                     print(f"Error: {method_name} method not found in {cog_name} cog.")
             else:
                 print(f"Error: {cog_name} cog is not available.")
+
+    async def get_command_config(self, guild_id: str, command_name: str) -> CommandConfig:
+        record = await self.command_settings.find_one(
+            {"guild_id": guild_id, "command_name": command_name}
+        )
+        return CommandConfig(**record)
+
+    def guard(self, command_name: str):
+        async def predicate(ctx: commands.Context):
+           config = await self.get_command_config(guild_id=str(ctx.guild.id), command_name=command_name)
+
 

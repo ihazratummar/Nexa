@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List, Dict
 
@@ -69,3 +71,29 @@ class GuildSettings(BaseModel):
     #Roles
     new_member_join_role: Optional[str] = None  # Role to assign to new members
     bot_role: Optional[str] = None  # Role for the bot itself
+
+
+
+class CommandSettings(BaseModel):
+    max_limit: int = Field(default=4)
+    auto_delete_invocation: bool = Field(default=False)
+    auto_delete_response: bool = Field(default=False)
+    response_delete_delay: int = Field(default=5)
+
+
+class CommandConfig(BaseModel):
+    guild_id: str
+    command: str
+    enabled: bool = True
+
+    aliases: List[str] = Field(default_factory=list)
+
+    enabled_roles: List[str] = Field(default_factory=list)
+    disabled_roles: List[str] = Field(default_factory=list)
+
+    roles_skip_limit: List[str] = Field(default_factory=list)
+
+    settings: CommandSettings = Field(default_factory=CommandSettings)
+
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
