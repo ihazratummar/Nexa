@@ -14,7 +14,7 @@ class EmbedBuilder(commands.Cog):
         self.embed_collection: AsyncIOMotorCollection = self.db[DbCons.EMBED_COLLECTION.value]
 
     async def get_preset(self, guild_id: int, name: str) -> dict | None:
-        return await self.embed_collection.find_one({"guild_id": guild_id, "name": name})
+        return await self.embed_collection.find_one({"guild_id": str(guild_id), "name": name})
 
     async def build_embed(self, preset: dict, user: discord.Member=None, server: discord.Guild=None, channel=None) -> discord.Embed:
         def replace_tokens(text: str) -> str:
@@ -81,7 +81,7 @@ class EmbedBuilder(commands.Cog):
             {
                 "$set":data,
                 "$setOnInsert" :{
-                    "guild_id": ctx.guild.id,
+                    "guild_id": str(ctx.guild.id),
                     "name": name,
                     "created_by": ctx.author.id,
                     "created_at": datetime.now(tz=TIMEZONE)
@@ -99,7 +99,7 @@ class EmbedBuilder(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def embed_preset_set_footer(self, ctx: commands.Context,  name: str, text: str, icon_url: str = None):
         result = await self.embed_collection.update_one(
-            {"guild_id": ctx.guild.id, "name": name},
+            {"guild_id": str(ctx.guild.id), "name": name},
             {
                 "$set":{
                     "footer" :{"text": text, "icon_url": icon_url}
@@ -117,7 +117,7 @@ class EmbedBuilder(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def embed_preset_set_thumbnail(self, ctx: commands.Context, name: str, url: str):
         result = await self.embed_collection.update_one(
-            {"guild_id": ctx.guild.id, "name": name},
+            {"guild_id": str(ctx.guild.id), "name": name},
             {"$set": {"thumbnail": url}},
         )
         if result.matched_count == 0:
@@ -129,7 +129,7 @@ class EmbedBuilder(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def embed_preset_set_image(self, ctx: commands.Context, name: str, url: str):
         result = await self.embed_collection.update_one(
-            {"guild_id": ctx.guild.id, "name": name},
+            {"guild_id": str(ctx.guild.id), "name": name},
             {"$set": {"image": url}},
         )
         if result.matched_count == 0:
@@ -148,7 +148,7 @@ class EmbedBuilder(commands.Cog):
             inline: bool = False,
     ):
         result = await self.embed_collection.update_one(
-            {"guild_id": ctx.guild.id, "name": name},
+            {"guild_id": str(ctx.guild.id), "name": name},
             {"$push": {"fields": {"name": field_title, "value": field_value, "inline": inline}}},
         )
         if result.matched_count == 0:
@@ -160,7 +160,7 @@ class EmbedBuilder(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def embed_preset_clear_fields(self, ctx: commands.Context, name: str):
         result = await self.embed_collection.update_one(
-            {"guild_id": ctx.guild.id, "name": name},
+            {"guild_id": str(ctx.guild.id), "name": name},
             {"$set": {"fields": []}},
         )
         if result.matched_count == 0:
@@ -175,7 +175,7 @@ class EmbedBuilder(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def embed_preset_list(self, ctx: commands.Context):
         await ctx.defer()
-        cursor = self.embed_collection.find({"guild_id": ctx.guild.id}, {"name": 1})
+        cursor = self.embed_collection.find({"guild_id": str(ctx.guild.id)}, {"name": 1})
         names = [doc["name"] async for doc in cursor]
         if not names:
             await ctx.send("No presets found.")
@@ -219,7 +219,7 @@ class EmbedBuilder(commands.Cog):
     )
     @commands.has_permissions(administrator=True)
     async def embed_preset_delete(self, ctx: commands.Context, name: str):
-        result = await self.embed_collection.delete_one({"guild_id": ctx.guild.id, "name": name})
+        result = await self.embed_collection.delete_one({"guild_id": str(ctx.guild.id), "name": name})
         if result.deleted_count > 0:
             await ctx.send(f"🗑️ Preset `{name}` deleted.")
         else:
