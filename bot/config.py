@@ -37,9 +37,6 @@ class Bot(commands.AutoShardedBot):
         
         
         self.scheduler = AsyncIOScheduler()
-        
-        if not self.scheduler.running:
-            self.scheduler.start()
         self.command_settings = self.db[DbCons.COMMAND_SETTINGS.value]
         # Redis Connection
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
@@ -64,6 +61,9 @@ class Bot(commands.AutoShardedBot):
         await self.change_presence(
             activity=discord.Game(name="Moderating Code Circle")
         )
+        
+        if not self.scheduler.running:
+            self.scheduler.start()
 
     # Debugging: Check if the AutoMod cog is successfully loaded
         if "AutoMod" in self.cogs:
