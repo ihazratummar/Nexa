@@ -9,6 +9,7 @@ from bot import mongo_client
 from bot.core.constant import DbCons
 from bot.core.models.guild_models import CommandConfig
 from bot.core.registration import register_commands
+from bot.core.context import CustomContext
 
 exts = [
     "bot.cogs.error",
@@ -24,9 +25,8 @@ exts = [
     "bot.cogs.embed_builder"
 ]
 
-from bot.core.context import CustomContext
 
-#new change
+
 
 class Bot(commands.AutoShardedBot):
     def __init__(self, command_prefix: str, intents: discord.Intents,  **kwargs):
