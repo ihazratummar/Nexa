@@ -23,26 +23,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh """
-                    docker build -t ${IMAGE} .
-                """
-                echo "🐳 Docker image built"
-            }
-        }
-
-        stage('Stop Old Container') {
-            steps {
-                sh """
-                    if docker ps -aq -f name=^${CONTAINER}\$; then
-                        docker stop ${CONTAINER} || true
-                        docker rm ${CONTAINER} || true
-                    fi
-                """
-            }
-        }
-
         stage('Verify ENV File') {
             steps {
                 sh """
@@ -55,16 +35,12 @@ pipeline {
             }
         }
 
-        stage('Run New Container') {
+        stage('Deploy with Docker Compose') {
             steps {
                 sh """
-                    docker run -d \
-                        --name ${CONTAINER} \
-                        --env-file ${ENV_FILE} \
-                        --restart unless-stopped \
-                        ${IMAGE}
+                    docker compose up -d --build --remove-orphans
                 """
-                echo "🤖 Nexa bot is now running"
+                echo "🚀 Nexa Bot & Redis deployed successfully"
             }
         }
     }

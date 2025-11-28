@@ -1,0 +1,31 @@
+services:
+  nexa-bot:
+    container_name: Nexa
+    build: .
+    restart: unless-stopped
+    env_file:
+      - /home/envs/nexa.env
+    environment:
+      - REDIS_URL=redis://nexa-redis:6379
+    depends_on:
+      - nexa-redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - nexa-network
+
+  nexa-redis:
+    container_name: nexa-redis
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - nexa-redis-data:/data
+    networks:
+      - nexa-network
+
+networks:
+  nexa-network:
+    driver: bridge
+
+volumes:
+  nexa-redis-data:

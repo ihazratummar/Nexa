@@ -20,7 +20,8 @@ class Logs(commands.Cog):
             return None
         return log_channel_id
 
-    async def logs_member_update(self, before: discord.Member, after: discord.Member):
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         before_roles = set(before.roles)
         after_roles = set(after.roles)
 

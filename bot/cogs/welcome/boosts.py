@@ -14,16 +14,20 @@ class Boosts(commands.Cog):
 
     @commands.Cog.listener()
     async def on_boost(self, guild: discord.Guild, booster: discord.Member):
-
-        guild_config = await self.guild_collection.find_one({"guild_id": guild.id})
+        guild_id = str(guild.id)
+        guild_config = await self.guild_collection.find_one({"guild_id": guild_id})
         boost_channel_id = guild_config.get("channels", {}).get("boost_channel")
         boost_channel = self.bot.get_channel(boost_channel_id)
         if boost_channel:
             message = (f"Thank you for boosting, {booster.mention}",)
         await boost_channel.send_message(message)
 
-    async def welcome_member_update(self, before: discord.Member, after: discord.Member):
-        guild_doc = await self.guild_collection.find_one({"guild_id": before.guild.id})
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+
+        guild_id = str(before.guild.id)
+
+        guild_doc = await self.guild_collection.find_one({"guild_id": guild_id})
         boost_channel_id = guild_doc.get("channels", {}).get("boost_channel")
         if len(before.roles) < len(after.roles):
             new_roles = [role for role in after.roles if role not in before.roles]
