@@ -33,6 +33,10 @@ class Bot(commands.AutoShardedBot):
         super().__init__(command_prefix, intents=intents, **kwargs)
         self.mongo_client = mongo_client
         self.db = self.mongo_client[DbCons.DATABASE_NAME.value]
+        
+        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        self.scheduler = AsyncIOScheduler()
+        
         if not self.scheduler.running:
             self.scheduler.start()
         self.command_settings = self.db[DbCons.COMMAND_SETTINGS.value]
