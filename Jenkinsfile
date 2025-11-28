@@ -38,10 +38,14 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh """
-                    docker version
-                    docker compose version || echo "docker compose not found"
-                    docker compose build
-                    docker compose up --detach --remove-orphans
+                    # Use docker/compose container to bypass missing binary on host
+                    docker run --rm \\
+                        -v /var/run/docker.sock:/var/run/docker.sock \\
+                        -v "\$(pwd)":"\$(pwd)" \\
+                        -w "\$(pwd)" \\
+                        -v /home/envs:/home/envs \\
+                        docker/compose:latest \\
+                        up -d --build --remove-orphans
                 """
                 echo "🚀 Nexa Bot & Redis deployed successfully"
             }
