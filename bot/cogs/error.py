@@ -42,22 +42,35 @@ class ErrorCog(commands.Cog):
         if error_type in error_map:
             title, description = error_map[error_type]
             embed = log_embed(title=title, description=description, color=discord.Color.orange())
-            await ctx.send(embed=embed, ephemeral=True)
+            await self._send_error(ctx, embed)
         elif isinstance(error, commands.CommandOnCooldown):
             embed = log_embed(
                 title="Command on Cooldown",
                 description=f"This command is on cooldown. Please try again in {error.retry_after:.2f}s.",
                 color=discord.Color.orange()
             )
-            await ctx.send(embed=embed, ephemeral=True)
+            await self._send_error(ctx, embed)
         else:
             embed = log_embed(
                 title="An Unexpected Error Occurred",
                 description="An unexpected error has occurred. The developers have been notified.",
                 color=discord.Color.red()
             )
-            await ctx.send(embed=embed, ephemeral=True)
+            await self._send_error(ctx, embed)
             print(error)
+
+    async def _send_error(self, ctx: commands.Context, embed: discord.Embed):
+        try:
+            await ctx.send(embed=embed, ephemeral=True)
+        except discord.HTTPException as e:
+            # Error 40060: Interaction has already been acknowledged.
+            if e.code == 40060 and ctx.interaction:
+                await ctx.interaction.followup.send(embed=embed, ephemeral=True)
+            else:
+                # If it's another error, log it or re-raise
+                print(f"Failed to send error message: {e}")
+        except Exception as e:
+            print(f"Failed to send error message: {e}")
 
 
 async def setup(bot: commands.Bot):
