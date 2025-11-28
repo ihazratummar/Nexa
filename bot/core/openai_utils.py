@@ -1,7 +1,7 @@
 from bot import openai_client
 
 
-def get_chat_completion(prompt: str, system: str= None, model="gpt-3.5-turbo", temperature=0.5, max_tokens=500)-> str :
+async def get_chat_completion(prompt: str, system: str= None, model="gpt-3.5-turbo", temperature=0.5, max_tokens=500)-> str :
 
     messages = []
 
@@ -10,7 +10,7 @@ def get_chat_completion(prompt: str, system: str= None, model="gpt-3.5-turbo", t
     messages.append({"role": "user", "content": prompt})
 
     try:
-        response = openai_client.chat.completions.create(
+        response = await openai_client.chat.completions.create(
             model=model,
             messages=messages,
             temperature=temperature,

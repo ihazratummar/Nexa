@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
@@ -7,7 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 from bot.core.constant import Color, DbCons
 from bot.core.openai_utils import get_chat_completion
 from bot.core.ratelimit import redis_cooldown
-from bot.core.checks import guard
+from bot.core.checks import guard, premium_only
 
 
 class Utility(commands.Cog):
@@ -148,17 +148,33 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
 
-    @commands.hybrid_command(name="clear")
+    @commands.hybrid_command(name="clear", description="Clears a specified number of messages")
     @commands.has_permissions(manage_messages = True)
     @guard("clear")
-    async def clear(self, ctx: commands.Context, number: int = 20):
-        await ctx.defer()
+    async def clear(self, ctx: commands.Context, number: int = 20, force: bool = False):
+        await ctx.defer(ephemeral=True)
 
-        message = await ctx.send(f"Deleting {number} messages...", ephemeral=True)
+        # Discord API limit: Cannot bulk delete messages older than 14 days
+        # Deleting older messages one-by-one triggers rate limits (429)
+        
+        
+        cutoff = datetime.now() - timedelta(days=14)
 
-        deleted = await ctx.channel.purge(limit= number +2)
-        await ctx.send(f"Deleted {len(deleted)-2} messages.", delete_after=5, ephemeral= True)
-        await message.delete(delay= 5)
+        if force:
+            # User explicitly requested to delete everything, including old messages
+            # This WILL trigger rate limits if messages are old, but we proceed
+            await ctx.send(f"Deleting {number} messages (Force Mode enabled)... This might take a while if messages are old.", ephemeral=True)
+            deleted = await ctx.channel.purge(limit=number + 1)
+        else:
+            # Safe Mode: Only delete messages younger than 14 days
+            # This uses the Bulk Delete API which is instant and safe
+            deleted = await ctx.channel.purge(limit=number + 1, after=cutoff)
+            
+            if len(deleted) < number:
+                 await ctx.send(f"Deleted {len(deleted)-1} messages. (Messages older than 14 days were skipped. Use `force:True` to delete them, but it will be slow.)", delete_after=10, ephemeral=True)
+                 return
+
+        await ctx.send(f"Deleted {len(deleted)-1} messages.", delete_after=5, ephemeral=True)
 
 
     @commands.hybrid_command(name="summarize", description="Summarize discord channel text")
@@ -180,16 +196,17 @@ class Utility(commands.Cog):
             ])
 
         prompt = f"Summarize the following Discord conversation:\n\n{content}\n\nSummary in bullet points:"
-        summary = get_chat_completion(prompt)
+        summary = await get_chat_completion(prompt)
         embed = discord.Embed(title="Summary", description=summary, color=0x00FFFF)
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="seen", description="Check when a user was last seen")
+    @guard("seen")
     async def seen (self, ctx: commands.Context, member: discord.Member = None):
 
         member = member or ctx.author
 
-        data = self.last_seen_collection.find_one({"user_id": member.id})
+        data = await self.last_seen_collection.find_one({"user_id": member.id})
 
         if not data:
             await ctx.send(f"No data found for {member.name}.")

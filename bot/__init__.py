@@ -23,7 +23,7 @@ mongo_uri = os.getenv("MONGO_CONNECTION")
 
 # Create clients
 mongo_client = AsyncIOMotorClient(mongo_uri)
-openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+openai_client = openai.AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 # Export these
 __all__ = ["mongo_client",

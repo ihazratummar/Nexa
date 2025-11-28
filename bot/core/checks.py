@@ -55,12 +55,19 @@ def premium_only():
             return False
 
         guild_settings_collection = bot.db[DbCons.GUILD_SETTINGS_COLLECTION.value]
+        users_collection = bot.db[DbCons.USER_COLLECTION.value]
         
-        # Check cache first if possible (TODO: Add caching for guild settings)
-        # For now, direct DB query
-        guild_data = await guild_settings_collection.find_one({"guild_id": str(ctx.guild.id)})
+        guild_id = str(ctx.guild.id)
         
+        # 1. Check Guild Settings (Direct Premium)
+        guild_data = await guild_settings_collection.find_one({"guild_id": guild_id})
         if guild_data and guild_data.get("is_premium", False):
+            return True
+            
+        # 2. Check User Assignments (User assigned premium to this guild)
+        # Find ANY user who has premium_guild_id set to this guild
+        user_premium = await users_collection.find_one({"premium_guild_id": guild_id})
+        if user_premium:
             return True
             
         await ctx.send("💎 This command is restricted to **Premium** servers only.")
