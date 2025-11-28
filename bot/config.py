@@ -10,6 +10,7 @@ from bot.core.constant import DbCons
 from bot.core.models.guild_models import CommandConfig
 from bot.core.registration import register_commands
 from bot.core.context import CustomContext
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 exts = [
     "bot.cogs.error",
@@ -34,7 +35,7 @@ class Bot(commands.AutoShardedBot):
         self.mongo_client = mongo_client
         self.db = self.mongo_client[DbCons.DATABASE_NAME.value]
         
-        from apscheduler.schedulers.asyncio import AsyncIOScheduler
+        
         self.scheduler = AsyncIOScheduler()
         
         if not self.scheduler.running:
