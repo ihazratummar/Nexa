@@ -38,14 +38,15 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh """
-                    # Use docker/compose container to bypass missing binary on host
-                    docker run --rm \\
-                        -v /var/run/docker.sock:/var/run/docker.sock \\
-                        -v "\$(pwd)":"\$(pwd)" \\
-                        -w "\$(pwd)" \\
-                        -v /home/envs:/home/envs \\
-                        docker/compose:latest \\
-                        up -d --build --remove-orphans
+                    # Download standalone docker-compose binary
+                    curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o docker-compose
+                    chmod +x docker-compose
+                    
+                    # Verify version
+                    ./docker-compose version
+                    
+                    # Deploy
+                    ./docker-compose up -d --build --remove-orphans
                 """
                 echo "🚀 Nexa Bot & Redis deployed successfully"
             }
