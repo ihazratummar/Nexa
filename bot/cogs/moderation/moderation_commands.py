@@ -57,3 +57,20 @@ class ModerationCommands(commands.Cog):
 
         await member.ban(reason=f"For violating discord server rules.")
         await ctx.send(f"{member.mention} has been ban in this server for good.")
+
+
+    @commands.hybrid_command(name="unban", description="Unban a user")
+    @commands.has_permissions(manage_guild=True)
+    @guard("unban")
+    async def unban(self, ctx: commands.Context, member: discord.Member):
+        settings = await self.get_mod_settings(str(ctx.guild.id))
+        if not settings.is_moderation_settings_enabled:
+            await ctx.send(f"⚠️ Moderation system is disabled in this server.")
+            return
+
+        if not member:
+            await ctx.send(f"If you are not trying to ban a ghost, please mention a member.")
+            return
+
+        await member.unban(reason=f"We decided to unban this user")
+        await ctx.send(f"{member.mention} has been unban in this server for good.")
