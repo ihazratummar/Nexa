@@ -6,6 +6,8 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 
 from bot.core.constant import Color, DbCons
 from bot.core.openai_utils import get_chat_completion
+from bot.core.ratelimit import redis_cooldown
+from bot.core.checks import guard
 
 
 class Utility(commands.Cog):
@@ -16,7 +18,8 @@ class Utility(commands.Cog):
         self.last_seen_collection:AsyncIOMotorCollection = self.db[DbCons.LAST_SEEN_COLLECTION.value]
 
 
-    async def last_seen(self, message: discord.Message):
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -33,6 +36,7 @@ class Utility(commands.Cog):
         )
 
     @commands.hybrid_command(name="help", description= "Get all the commands list")
+    @guard("help")
     async def help(self, interaction: commands.Context):
         embed = discord.Embed(
             title= "Help",
@@ -48,17 +52,20 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(name="ping", description="server ping")
+    @guard("ping")
     async def ping(self, interaction: commands.Context):
         await interaction.send(
             f"Ping {round(self.bot.latency * 1000)} ms"
         )
 
     @commands.hybrid_command(name="invite", description="Invite Link")
+    @guard("invite")
     async def invite(self, interaction: commands.Context):
         link = await interaction.channel.create_invite(max_age=0)
         await interaction.send(link)
 
     @commands.hybrid_command(name='server', description = "Get the server information")
+    @guard("server")
     async def server_info(self, ctx: commands.Context):
         embed=discord.Embed(title=f"{ctx.guild.name}", description="Information of this Server", color=0x00FFFF)
         embed.add_field(name="👑Owner", value=f"{ctx.guild.owner}", inline=True)
@@ -75,6 +82,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="userinfo", description= "Display a user's info")
+    @guard("userinfo")
     async def userinfo(self, ctx: commands.Context, * , user: discord.Member = None):
         if user is None:
             user = ctx.author
@@ -101,6 +109,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="avatar", description = "Display a User's Avatar")
+    @guard("avatar")
     async def avatar(self, ctx: commands.Context, user:discord.Member = None):
         if user is None:
             user = ctx.author
@@ -110,6 +119,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name= "channel_info")
+    @guard("channel_info")
     async def channel_info(self, ctx: commands.Context, *, channel: discord.TextChannel = None):
         if channel is None:
             channel = ctx.channel
@@ -126,6 +136,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(name="emojis", description="Displays all the emojis in the server.")
+    @guard("emojis")
     async def emojis(self, ctx: commands.Context):
         emojis = ctx.guild.emojis
         if not emojis:
@@ -139,6 +150,7 @@ class Utility(commands.Cog):
 
     @commands.hybrid_command(name="clear")
     @commands.has_permissions(manage_messages = True)
+    @guard("clear")
     async def clear(self, ctx: commands.Context, number: int = 20):
         await ctx.defer()
 
@@ -150,7 +162,8 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(name="summarize", description="Summarize discord channel text")
-    @commands.cooldown(1, 600,  commands.BucketType.user)
+    @redis_cooldown(1, 600, commands.BucketType.user)
+    @guard("summarize")
     async def summarize(self, ctx: commands.Context, limit: int = 20):
         if limit > 50:
             await ctx.send("Limit should be less than 50")

@@ -34,3 +34,5 @@ class DbCons(Enum):
     SCHEDULE_EVENTS_COLLECTION = "scheduled_events"
     EMBED_COLLECTION = "embeds"
     COMMAND_SETTINGS = "command_settings"
+    MOD_SETTINGS = "moderation_settings"
+    AUTOMOD_SETTINGS = "automod_settings"

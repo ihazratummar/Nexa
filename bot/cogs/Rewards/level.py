@@ -16,7 +16,8 @@ class Level(commands.Cog):
         self.db = self.bot.db
         self.level_collection : AsyncIOMotorCollection = self.db[DbCons.LEVEL_COLLECTION.value]
 
-    async def level_up(self, message: discord.Message):
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
         if not message.author.bot and not message.content.startswith(self.bot.command_prefix):
             user_id = message.author.id
             guild_id = message.guild.id

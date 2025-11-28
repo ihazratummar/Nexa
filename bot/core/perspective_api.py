@@ -1,3 +1,6 @@
+import logging
+from typing import Any, Coroutine
+
 import aiohttp
 import os
 import dotenv
@@ -12,7 +15,7 @@ SIGHTENGINE_API_SECRET = os.getenv("SIGHTENGINE_API_SECRET")
 
 SIGHTENGINE_MODELS = 'nudity-2.1,alcohol,recreational_drug,medical,text-content,face-attributes,gore-2.0,violence,self-harm'
 
-async def analyze_comment(comment: str) -> float:
+async def analyze_comment(comment: str) -> float | Any:
     payload = {
         "comment":{"text": comment},
         "languages": ["en"],
@@ -24,7 +27,7 @@ async def analyze_comment(comment: str) -> float:
     async with aiohttp.ClientSession() as session:
         async with session.post(f"{PERSPECTIVE_API_URL}?key={PERSPECTIVE_API_KEY}", json= payload) as response:
             if response.status != 200:
-                print(f"Error: {response.status}")
+                logging.error(f"[PERSPECTIVE ERROR STATUS] : {response.status}")
                 return 0.0
             data = await response.json()
             return data["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
@@ -32,7 +35,7 @@ async def analyze_comment(comment: str) -> float:
     return None
 
 
-async def check_image_content(image_url: str) -> dict:
+async def check_image_content(image_url: str) -> Any:
     """
     Sends the image to Sightengine and returns a dictionary of key risks and their scores.
     """
@@ -51,7 +54,7 @@ async def check_image_content(image_url: str) -> dict:
     return None
 
 
-async def check_video_content(video_url: str) -> dict:
+async def check_video_content(video_url: str) -> Any:
     """
     Sends the video to Sightengine and returns a dictionary of key risks and their scores.
     """

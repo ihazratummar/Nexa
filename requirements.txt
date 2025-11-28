@@ -11,3 +11,4 @@ openai==2.8.1
 pydantic==2.12.4
 motor==3.7.1
 apscheduler==3.11.1
+redis==5.0.1

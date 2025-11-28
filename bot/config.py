@@ -1,12 +1,14 @@
 import logging
+import os
 
 import discord
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import redis.asyncio as redis
 from discord.ext import commands
 
 from bot import mongo_client
 from bot.core.constant import DbCons
 from bot.core.models.guild_models import CommandConfig
+from bot.core.registration import register_commands
 
 exts = [
     "bot.cogs.error",
@@ -16,10 +18,13 @@ exts = [
     "bot.cogs.games",
     "bot.cogs.welcome",
     "bot.cogs.Automod",
+    "bot.cogs.moderation",
     "bot.cogs.Utility.utility_commands",
     "bot.cogs.logs",
     "bot.cogs.embed_builder"
 ]
+
+from bot.core.context import CustomContext
 
 #new change
 
@@ -29,7 +34,12 @@ class Bot(commands.AutoShardedBot):
         self.mongo_client = mongo_client
         self.db = self.mongo_client[DbCons.DATABASE_NAME.value]
         self.command_settings = self.db[DbCons.COMMAND_SETTINGS.value]
-        self.scheduler = AsyncIOScheduler()
+        # Redis Connection
+        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+        self.redis = redis.from_url(redis_url, decode_responses=True)
+
+    async def get_context(self, message, *, cls=CustomContext):
+        return await super().get_context(message, cls=cls)
 
     async def on_ready(self):
         for ext in exts:
@@ -40,10 +50,9 @@ class Bot(commands.AutoShardedBot):
 
         synced = await self.tree.sync()
         logging.info(f"Loaded {len(exts)} and {len(synced)} commands(s)")
+        
+        
         logging.info("Bot is ready.")
-
-        self.scheduler.start()
-
 
         await self.change_presence(
             activity=discord.Game(name="Moderating Code Circle")
@@ -59,49 +68,77 @@ class Bot(commands.AutoShardedBot):
         if message.author.bot:
             return
         
-        cogs = [
-        ("AutoMod", "auto_mod"),
-        ("Level", "level_up"),
-        ("Utility", "last_seen"),
-    ]
-        for cog_name, method_name in cogs:
-            cog = self.get_cog(cog_name)
-            if cog:
-                method = getattr(cog, method_name, None)
-                if method:
-                    await method(message)
-                else:
-                    print(f"Error: {method_name} method not found in {cog_name} cog.")
-            else:
-                print(f"Error: {cog_name} cog is not available.")
-
         await self.process_commands(message)
 
-    async def on_member_update(self, before: discord.Member, after: discord.Member):
-        cogs = [
-            ("Logs", "logs_member_update"),
-            ("Boosts", "welcome_member_update"),
-        ]
+    async def on_command_completion(self, ctx: CustomContext):
+        if hasattr(ctx, 'entry_point_cleanup'):
+            await ctx.entry_point_cleanup()
 
-        for cog_name, method_name in cogs:
-            cog = self.get_cog(cog_name)
-            if cog:
-                method = getattr(cog, method_name, None)
-                if method:
-                    await method(before, after)
-                else:
-                    print(f"Error: {method_name} method not found in {cog_name} cog.")
-            else:
-                print(f"Error: {cog_name} cog is not available.")
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        pass
+
+    async def on_guild_join(self, guild: discord.Guild):
+        logging.info(f"Joined new guild: {guild.name} ({guild.id}). Registering commands...")
+
+        # We need to modify register_commands to accept a specific guild, or just run it.
+        # For simplicity, we can run the existing function which iterates all guilds, 
+        # but it's better to optimize it.
+        # Let's just run the global one for now as it handles "exists" checks efficiently.
+        self.loop.create_task(register_commands(self))
 
     async def get_command_config(self, guild_id: str, command_name: str) -> CommandConfig:
-        record = await self.command_settings.find_one(
-            {"guild_id": guild_id, "command_name": command_name}
-        )
-        return CommandConfig(**record)
+        cache_key = f"command_config:{guild_id}:{command_name}"
+        
+        # Check Redis Cache
+        try:
+            cached_data = await self.redis.get(cache_key)
+            if cached_data:
+                # Need to handle potential JSON errors or stale data
+                return CommandConfig.model_validate_json(cached_data)
+        except Exception as e:
+            logging.error(f"Redis read error: {e}")
 
-    def guard(self, command_name: str):
-        async def predicate(ctx: commands.Context):
-           config = await self.get_command_config(guild_id=str(ctx.guild.id), command_name=command_name)
+        # Fetch from DB
+        record = await self.command_settings.find_one(
+            {"guild_id": guild_id, "command": command_name}
+        )
+        
+        if record:
+            config = CommandConfig(**record)
+        else:
+            # Lazy Load: Create default config if missing
+            # Find the command object to get the category
+            cmd = self.get_command(command_name)
+            category = cmd.cog_name if cmd and cmd.cog_name else "General"
+            
+            config = CommandConfig(
+                guild_id=guild_id,
+                command=command_name,
+                description=cmd.description,
+                category=category,
+                enabled=True
+            )
+            # Insert into DB
+            try:
+                await self.command_settings.insert_one(config.model_dump())
+            except Exception as e:
+                # Handle race condition where another thread/process inserted it first
+                if "E11000" in str(e):
+                    # Fetch the record that was just inserted
+                    record = await self.command_settings.find_one(
+                        {"guild_id": guild_id, "command": command_name}
+                    )
+                    if record:
+                        config = CommandConfig(**record)
+                else:
+                    logging.error(f"Error inserting command config: {e}")
+            
+        # Cache for 5 seconds: Feels instant to user, but protects DB from command spam
+        try:
+            await self.redis.set(cache_key, config.model_dump_json(), ex=5)
+        except Exception as e:
+            logging.error(f"Redis write error: {e}")
+            
+        return config
 
 
