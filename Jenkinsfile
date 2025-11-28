@@ -38,7 +38,7 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh """
-                    docker compose up -d --build --remove-orphans
+                    docker-compose up -d --build --remove-orphans
                 """
                 echo "🚀 Nexa Bot & Redis deployed successfully"
             }

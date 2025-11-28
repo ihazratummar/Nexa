@@ -28,6 +28,9 @@ class Boosts(commands.Cog):
         guild_id = str(before.guild.id)
 
         guild_doc = await self.guild_collection.find_one({"guild_id": guild_id})
+        if not guild_doc:
+            return
+            
         boost_channel_id = guild_doc.get("channels", {}).get("boost_channel")
         if len(before.roles) < len(after.roles):
             new_roles = [role for role in after.roles if role not in before.roles]
