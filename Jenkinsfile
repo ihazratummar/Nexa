@@ -45,6 +45,10 @@ pipeline {
                     # Verify version
                     ./docker-compose version
                     
+                    # Force cleanup of old container to avoid name conflicts
+                    docker stop ${CONTAINER} || true
+                    docker rm ${CONTAINER} || true
+                    
                     # Deploy
                     ./docker-compose up -d --build --remove-orphans
                 """
