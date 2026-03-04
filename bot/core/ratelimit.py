@@ -6,10 +6,10 @@ from discord.ext import commands
 import redis.asyncio as redis
 
 class RedisCooldown:
-    def __init__(self, rate: int, per: float, type: Union[commands.BucketType, Callable[[commands.Context], str]]):
+    def __init__(self, rate: int, per: float, _type: Union[commands.BucketType, Callable[[commands.Context], str]]):
         self.rate = rate
         self.per = per
-        self.type = type
+        self.type = _type
 
     def get_key(self, ctx: commands.Context) -> str:
         if callable(self.type):
@@ -33,7 +33,7 @@ class RedisCooldown:
         
         return f"ratelimit:{ctx.command.qualified_name}:{key}"
 
-def redis_cooldown(rate: int, per: float, type: Union[commands.BucketType, Callable[[commands.Context], str]] = commands.BucketType.default):
+def redis_cooldown(rate: int, per: float, _type: Union[commands.BucketType, Callable[[commands.Context], str]] = commands.BucketType.default):
     """
     A decorator that applies a Redis-backed cooldown to a command.
     """
@@ -42,7 +42,7 @@ def redis_cooldown(rate: int, per: float, type: Union[commands.BucketType, Calla
             logging.warning("Redis not initialized in bot, skipping rate limit check.")
             return True
 
-        cooldown = RedisCooldown(rate, per, type)
+        cooldown = RedisCooldown(rate, per, _type)
         key = cooldown.get_key(ctx)
         redis_client: redis.Redis = ctx.bot.redis
 
@@ -95,13 +95,13 @@ def redis_cooldown(rate: int, per: float, type: Union[commands.BucketType, Calla
         
         try:
             current_usage = await redis_client.eval(script, 1, key, int(per))
-            if current_usage > rate:
+            if int(current_usage) > rate:
                 # Calculate retry_after
                 ttl = await redis_client.ttl(key)
                 raise commands.CommandOnCooldown(
                     commands.Cooldown(rate, per), 
                     retry_after=ttl, 
-                    type=type
+                    type=_type
                 )
         except Exception as e:
             if isinstance(e, commands.CommandOnCooldown):
