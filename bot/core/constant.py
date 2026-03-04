@@ -36,4 +36,4 @@ class DbCons(Enum):
     COMMAND_SETTINGS = "command_settings"
     MOD_SETTINGS = "moderation_settings"
     AUTOMOD_SETTINGS = "automod_settings"
-    USER_COLLECTION = "users"
+    USER_COLLECTION = "user_collection"
