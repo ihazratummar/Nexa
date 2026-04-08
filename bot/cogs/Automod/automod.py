@@ -18,6 +18,9 @@ class AutoMod(commands.Cog):
         self.bot = bot
         self.collection:AsyncIOMotorCollection = self.bot.db[DbCons.AUTOMOD_SETTINGS.value]
         self.infractions:AsyncIOMotorCollection = self.bot.db["user_infractions"]
+        # In-memory stores for spam/duplicate detection (replaces Redis)
+        self._last_messages: dict[str, str] = {}      # "{guild_id}:{user_id}" -> last message content
+        self._spam_counters: dict[str, list] = {}      # "{guild_id}:{user_id}" -> [timestamp, ...]
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -177,34 +180,34 @@ class AutoMod(commands.Cog):
 
         # 7. Repeated Messages / Duplicate Text
         if settings.filters.repeated_messages.enabled or settings.filters.duplicate_text.enabled:
-            # Use Redis to check last message
-            # Key: automod:last_msg:guild_id:user_id
-            redis_key = f"automod:last_msg:{guild_id}:{message.author.id}"
-            last_content = await self.bot.redis.get(redis_key)
+            # Use in-memory dict to check last message
+            mem_key = f"{guild_id}:{message.author.id}"
+            last_content = self._last_messages.get(mem_key)
             
             if last_content and last_content == message.content:
-                if not self._is_ignored(message, settings.filters.repeated_messages): # Use repeated_messages config
+                if not self._is_ignored(message, settings.filters.repeated_messages):
                      await self._handle_action(message, settings.filters.repeated_messages, "Repeated message", settings=settings)
                      return
             
-            # Save current message (expire in 60s)
-            await self.bot.redis.set(redis_key, message.content, ex=60)
+            # Save current message
+            self._last_messages[mem_key] = message.content
 
         # 8. Anti-Spam (Rate Limit)
         if settings.filters.spam.enabled:
-            # Key: automod:spam:guild_id:user_id
-            # We'll use a simple counter with 5s expiry
-            spam_key = f"automod:spam:{guild_id}:{message.author.id}"
-            count = await self.bot.redis.incr(spam_key)
-            if count == 1:
-                await self.bot.redis.expire(spam_key, 5) # 5 second window
+            import time
+            spam_key = f"{guild_id}:{message.author.id}"
+            now = time.time()
+            window = 5  # 5 second window
             
-            max_messages = 5 # Hardcoded or from config if available. User JSON has 'max_lines' but not 'max_messages'.
-            # Let's assume 5 for now or check custom_config
-            # User JSON has "max_lines": 10 in spam config, maybe they mean messages? Or lines in one message?
-            # Let's use a safe default of 5 messages in 5 seconds.
+            # Get or create timestamp list, prune old entries
+            timestamps = self._spam_counters.get(spam_key, [])
+            timestamps = [t for t in timestamps if now - t < window]
+            timestamps.append(now)
+            self._spam_counters[spam_key] = timestamps
             
-            if count > max_messages:
+            max_messages = 5
+            
+            if len(timestamps) > max_messages:
                  if not self._is_ignored(message, settings.filters.spam):
                      await self._handle_action(message, settings.filters.spam, "Sending messages too fast", settings=settings)
                      return

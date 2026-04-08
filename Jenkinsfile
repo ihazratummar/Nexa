@@ -52,7 +52,7 @@ pipeline {
                     # Deploy
                     ./docker-compose up -d --build --remove-orphans
                 """
-                echo "🚀 Nexa Bot & Redis deployed successfully"
+                echo "🚀 Nexa Bot deployed successfully"
             }
         }
     }

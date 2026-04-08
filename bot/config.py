@@ -2,7 +2,7 @@ import logging
 import os
 
 import discord
-import redis.asyncio as redis
+
 from discord.ext import commands
 
 from bot import mongo_client
@@ -38,9 +38,7 @@ class Bot(commands.AutoShardedBot):
         
         self.scheduler = AsyncIOScheduler()
         self.command_settings = self.db[DbCons.COMMAND_SETTINGS.value]
-        # Redis Connection
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
-        self.redis = redis.from_url(redis_url, decode_responses=True)
+
 
     async def get_context(self, message, *, cls=CustomContext):
         return await super().get_context(message, cls=cls)
@@ -94,17 +92,6 @@ class Bot(commands.AutoShardedBot):
         self.loop.create_task(register_commands(self))
 
     async def get_command_config(self, guild_id: str, command_name: str) -> CommandConfig:
-        cache_key = f"command_config:{guild_id}:{command_name}"
-        
-        # Check Redis Cache
-        try:
-            cached_data = await self.redis.get(cache_key)
-            if cached_data:
-                # Need to handle potential JSON errors or stale data
-                return CommandConfig.model_validate_json(cached_data)
-        except Exception as e:
-            logging.error(f"Redis read error: {e}")
-
         # Fetch from DB
         record = await self.command_settings.find_one(
             {"guild_id": guild_id, "command": command_name}
@@ -139,12 +126,6 @@ class Bot(commands.AutoShardedBot):
                         config = CommandConfig(**record)
                 else:
                     logging.error(f"Error inserting command config: {e}")
-            
-        # Cache for 5 seconds: Feels instant to user, but protects DB from command spam
-        try:
-            await self.redis.set(cache_key, config.model_dump_json(), ex=5)
-        except Exception as e:
-            logging.error(f"Redis write error: {e}")
             
         return config
 
