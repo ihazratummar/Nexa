@@ -4,11 +4,11 @@ import discord
 from discord.ext import commands
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from bot.core.constant import Color, DbCons
+from bot.cogs.Utility.ui import HelpUi
+from bot.core.checks import guard
+from bot.core.constant import DbCons
 from bot.core.openai_utils import get_chat_completion
-from bot.core.ratelimit import redis_cooldown
-from bot.core.checks import guard, premium_only
-
+from bot.core.utils import help_loader
 
 class Utility(commands.Cog):
     def __init__(self, bot):
@@ -35,20 +35,11 @@ class Utility(commands.Cog):
             upsert=True
         )
 
-    @commands.hybrid_command(name="help", description= "Get all the commands list")
+    @commands.hybrid_command(name="help", description="Get all the commands list")
     @guard("help")
-    async def help(self, interaction: commands.Context):
-        embed = discord.Embed(
-            title= "Help",
-            description= "List of commands all the commands",
-            color= discord.Color.from_str(Color.PRIMARY_COLOR)
-        )
-
-        for c in self.bot.cogs:
-             cog = self.bot.get_cog(c)
-             if any(cog.walk_commands()):
-                 embed.add_field(name=cog.qualified_name, value= " , ".join(f"`{i.name}`" for i in cog.walk_commands()), inline= False)
-        await interaction.send(embed=embed)
+    async def help(self, ctx: commands.Context):
+        view = HelpUi(author_id=ctx.author.id)
+        await ctx.send(view=view)
 
 
     @commands.hybrid_command(name="ping", description="server ping")
@@ -178,7 +169,7 @@ class Utility(commands.Cog):
 
 
     @commands.hybrid_command(name="summarize", description="Summarize discord channel text")
-    @redis_cooldown(1, 600, commands.BucketType.user)
+    @commands.cooldown(1, 600, commands.BucketType.user)
     @guard("summarize")
     async def summarize(self, ctx: commands.Context, limit: int = 20):
         if limit > 50:

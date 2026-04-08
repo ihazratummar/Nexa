@@ -1,0 +1,431 @@
+categories:
+  - name: "General"
+    id: "general"
+    emoji: "💠"
+    description: "Essential commands for basic bot interaction"
+    commands:
+      - name: "/hi"
+        description: "A friendly greeting to check if the bot is responsive"
+        usage: "/hi"
+        output: "The bot replies with a friendly greeting message."
+        permissions: "everyone"
+
+      - name: "/youtube"
+        description: "Search for a video on YouTube and get the top result"
+        usage: "/youtube search:<query>"
+        args:
+          - name: "search"
+            type: "string"
+            description: "The title or topic of the video to search for"
+            required: true
+            example: "Never Gonna Give You Up"
+        output: "The bot provides the URL of the first YouTube video found."
+        permissions: "everyone"
+
+  - name: "Fun"
+    id: "fun"
+    emoji: "😎"
+    description: "Entertaining commands to spice up your server"
+    commands:
+      - name: "/meme"
+        description: "Fetch a random trending meme from popular subreddits"
+        usage: "/meme"
+        output: "An embed containing a random meme image and its title."
+        permissions: "everyone"
+
+      - name: "/joke"
+        description: "Tells a random joke with a short delay for the punchline"
+        usage: "/joke"
+        output: "Two messages: the setup followed by the punchline after a 3-second pause."
+        permissions: "everyone"
+
+      - name: "/gif"
+        description: "Retrieve a random GIF from GIPHY based on a search tag"
+        usage: "/gif tag:<tag>"
+        args:
+          - name: "tag"
+            type: "string"
+            description: "The category or topic for the GIF"
+            required: true
+            example: "dancing"
+        output: "A direct link to a random GIF matching your tag."
+        permissions: "everyone"
+
+      - name: "/pokemon"
+        description: "Displays information and images of a random Pokemon"
+        usage: "/pokemon"
+        output: "An embed with the Pokemon's name, species, types, and images."
+        permissions: "everyone"
+
+      - name: "/cat"
+        description: "Get a random cute cat image along with breed details"
+        usage: "/cat user:[member]"
+        args:
+          - name: "user"
+            type: "member"
+            description: "Optional user to mention when sending the cat"
+            required: false
+        output: "A detailed embed with a cat image, breed name, and description."
+        permissions: "everyone"
+
+      - name: "/dog"
+        description: "Get a random adorable dog image with breed information"
+        usage: "/dog user:[member]"
+        args:
+          - name: "user"
+            type: "member"
+            description: "Optional user to mention when sending the dog"
+            required: false
+        output: "An embed with a dog image and its temperament traits."
+        permissions: "everyone"
+
+      - name: "/fact"
+        description: "Receive a random interesting fact to expand your knowledge"
+        usage: "/fact user:[member]"
+        args:
+          - name: "user"
+            type: "member"
+            description: "Optional user to mention when sending the fact"
+            required: false
+        output: "A clean embed presenting a random piece of trivia."
+        permissions: "everyone"
+
+  - name: "Games"
+    id: "games"
+    emoji: "🎮"
+    description: "Interactive games to play with the bot"
+    commands:
+      - name: "/guess_number"
+        description: "Challenge yourself to guess a secret number between 1 and 20"
+        usage: "/guess_number"
+        output: "An interactive session where you have 30 seconds to guess the correct number."
+        permissions: "everyone"
+
+      - name: "/flip"
+        description: "Flip a coin to settle a debate or make a quick choice"
+        usage: "/flip"
+        output: "Returns either 'Head' or 'Tail'."
+        permissions: "everyone"
+
+  - name: "Media"
+    id: "media"
+    emoji: "📷"
+    description: "Search for high-quality images and videos"
+    commands:
+      - name: "/imgur"
+        description: "Search for images hosted on Imgur gallery"
+        usage: "/imgur query:<text>"
+        args:
+          - name: "query"
+            type: "string"
+            description: "What you want to see an image of"
+            required: true
+            example: "cyberpunk city"
+        output: "A random image from the Imgur search results."
+        permissions: "everyone"
+
+      - name: "/images_search"
+        description: "Find professional high-resolution images via Pixabay"
+        usage: "/images_search topic:<text>"
+        args:
+          - name: "topic"
+            type: "string"
+            description: "The subject of the image search"
+            required: true
+            example: "mountains"
+        output: "An embed with a large image preview, stats (likes, downloads), and an 'Open Image' button."
+        permissions: "everyone"
+
+      - name: "/search_video"
+        description: "Search for and download short video clips from Pixabay"
+        usage: "/search_video topic:<text>"
+        args:
+          - name: "topic"
+            type: "string"
+            description: "The subject of the video search"
+            required: true
+            example: "ocean"
+        output: "An embed with video stats and the video file uploaded directly to the channel."
+        permissions: "everyone"
+
+  - name: "Utility"
+    id: "utility"
+    emoji: "🛠️"
+    description: "Practical tools for server management and information"
+    commands:
+      - name: "/help"
+        description: "Open the interactive help menu to explore all bot features"
+        usage: "/help"
+        output: "A dynamic multi-page menu with category selection and command details."
+        permissions: "everyone"
+
+      - name: "/ping"
+        description: "Check the current response time (latency) of the bot"
+        usage: "/ping"
+        output: "Displays the bot's heartbeat latency in milliseconds."
+        permissions: "everyone"
+
+      - name: "/invite"
+        description: "Generate a permanent invite link for the current channel"
+        usage: "/invite"
+        output: "A fresh invite link message."
+        permissions: "everyone"
+
+      - name: "/server"
+        description: "Display an overview of server information and statistics"
+        usage: "/server"
+        output: "A detailed embed showing owner, member count, channel counts, and creation date."
+        permissions: "everyone"
+
+      - name: "/userinfo"
+        description: "View detailed profile information for yourself or another member"
+        usage: "/userinfo user:[member]"
+        args:
+          - name: "user"
+            type: "member"
+            description: "The user whose info you want to view"
+            required: false
+        output: "A comprehensive profile embed including join dates, ID, and roles."
+        permissions: "everyone"
+
+      - name: "/avatar"
+        description: "Show a full-size version of a user's profile picture"
+        usage: "/avatar user:[member]"
+        args:
+          - name: "user"
+            type: "member"
+            description: "The user whose avatar you want to see"
+            required: false
+        output: "An embed containing the user's avatar image and a direct URL link."
+        permissions: "everyone"
+
+      - name: "/channel_info"
+        description: "Show specific details about a text channel"
+        usage: "/channel_info channel:[text_channel]"
+        args:
+          - name: "channel"
+            type: "text_channel"
+            description: "The channel to inspect"
+            required: false
+        output: "Details such as topic, category, position, and creation date."
+        permissions: "everyone"
+
+      - name: "/emojis"
+        description: "List all custom emojis currently available in this server"
+        usage: "/emojis"
+        output: "An embed displaying all server-specific emojis."
+        permissions: "everyone"
+
+      - name: "/clear"
+        description: "Delete a specified number of recent messages in the current channel"
+        usage: "/clear number:[int] force:[bool]"
+        args:
+          - name: "number"
+            type: "integer"
+            description: "Number of messages to delete (default: 20)"
+            required: false
+            example: "50"
+          - name: "force"
+            type: "boolean"
+            description: "Whether to bypass the 14-day safety limit (slower)"
+            required: false
+        output: "A notification of how many messages were successfully removed."
+        permissions: "Manage Messages"
+
+      - name: "/summarize"
+        description: "Uses AI to generate a bulleted summary of recent channel conversation"
+        usage: "/summarize limit:[int]"
+        args:
+          - name: "limit"
+            type: "integer"
+            description: "Number of messages to analyze (max: 50)"
+            required: false
+            example: "30"
+        output: "A categorized bullet-point summary of the discussion."
+        permissions: "everyone"
+
+      - name: "/seen"
+        description: "Check the last recorded activity time for a server member"
+        usage: "/seen member:[member]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The member to check"
+            required: false
+        output: "A relative timestamp showing when the user last sent a message."
+        permissions: "everyone"
+
+  - name: "Moderation"
+    id: "moderation"
+    emoji: "🛡️"
+    description: "Tools for keeping the server safe and orderly"
+    commands:
+      - name: "/toggle_moderation"
+        description: "Enable or disable the entire manual moderation command system"
+        usage: "/toggle_moderation"
+        output: "A confirmation message stating the new status of the moderation system."
+        permissions: "Administrator"
+
+      - name: "/ban"
+        description: "Ban a member from the server for violating rules"
+        usage: "/ban member:<member>"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to ban"
+            required: true
+        output: "The user is removed and banned, and a confirmation is sent."
+        permissions: "Manage Messages"
+
+      - name: "/unban"
+        description: "Unban a previously banned user from the server"
+        usage: "/unban member:<member>"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to unban (requires mention or ID)"
+            required: true
+        output: "The user is removed from the ban list."
+        permissions: "Manage Server"
+
+  - name: "Automod"
+    id: "automod"
+    emoji: "🤖"
+    description: "Automated protection settings"
+    commands:
+      - name: "/toggle_automod"
+        description: "Switch the AI-powered automatic moderation on or off"
+        usage: "/toggle_automod"
+        output: "States whether AutoMod is now enabled or disabled."
+        permissions: "Manage Messages"
+
+  - name: "Welcome & Roles"
+    id: "welcome"
+    emoji: "👋"
+    description: "Welcome new members and manage automated roles"
+    commands:
+      - name: "/welcome"
+        description: "Designate a channel where welcome messages and images will be sent"
+        usage: "/welcome channel:[text_channel]"
+        args:
+          - name: "channel"
+            type: "text_channel"
+            description: "The channel for welcome logs"
+            required: false
+        output: "Confirmation of the newly set welcome channel."
+        permissions: "Administrator"
+
+      - name: "/set_new_member_role"
+        description: "Define roles that are automatically assigned to new human members"
+        usage: "/set_new_member_role roles:<roles>"
+        args:
+          - name: "roles"
+            type: "roles (greedy)"
+            description: "One or more roles to assign"
+            required: true
+        output: "Confirmation of the roles which will be auto-assigned."
+        permissions: "Administrator"
+
+      - name: "/set_bot_role"
+        description: "Define roles that are automatically assigned to newly added bots"
+        usage: "/set_bot_role roles:<roles>"
+        args:
+          - name: "roles"
+            type: "roles (greedy)"
+            description: "One or more roles to assign"
+            required: true
+        output: "Confirmation of the roles which will be auto-assigned to bots."
+        permissions: "Administrator"
+
+      - name: "/boost_channel"
+        description: "Set a dedicated channel for server boost notifications"
+        usage: "/boost_channel channel:[text_channel]"
+        args:
+          - name: "channel"
+            type: "text_channel"
+            description: "The channel for boost announcements"
+            required: false
+        output: "Confirmation of the boost announcement channel."
+        permissions: "Administrator"
+
+  - name: "Embed Builder"
+    id: "embed_builder"
+    emoji: "🏗️"
+    description: "Create and manage custom rich embeds for your server"
+    commands:
+      - name: "/embed_preset_create"
+        description: "Establish a new embed preset with core content"
+        usage: "/embed_preset_create name:<text> title:<text> description:<text> color:[hex]"
+        args:
+          - name: "name"
+            type: "string"
+            description: "The unique identifier for this preset"
+            required: true
+          - name: "title"
+            type: "string"
+            description: "Main title of the embed"
+            required: true
+          - name: "description"
+            type: "string"
+            description: "Main body text"
+            required: true
+          - name: "color"
+            type: "hex_code"
+            description: "The sidebar color (default: #5865F2)"
+            required: false
+        output: "Confirmation of preset creation or update."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_set_footer"
+        description: "Add or update the footer section for a preset"
+        usage: "/embed_preset_set_footer name:<text> text:<text> icon_url:[url]"
+        output: "Footer update confirmation."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_set_thumbnail"
+        description: "Set a small thumbnail image in the top-right corner"
+        usage: "/embed_preset_set_thumbnail name:<text> url:<url>"
+        output: "Thumbnail update confirmation."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_set_image"
+        description: "Set the main large image for the embed"
+        usage: "/embed_preset_set_image name:<text> url:<url>"
+        output: "Image update confirmation."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_add_field"
+        description: "Add a named data field to your embed"
+        usage: "/embed_preset_add_field name:<text> field_title:<text> field_value:<text> inline:[bool]"
+        output: "Field addition confirmation."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_clear_fields"
+        description: "Remove all additional fields from a preset"
+        usage: "/embed_preset_clear_fields name:<text>"
+        output: "Confirmation that fields have been cleared."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_list"
+        description: "View names of all saved embed presets"
+        usage: "/embed_preset_list"
+        output: "A comma-separated list of preset names."
+        permissions: "Administrator"
+
+      - name: "/embed_preset_show"
+        description: "Get a private preview of how a preset looks"
+        usage: "/embed_preset_show name:<text>"
+        output: "A rendered version of your embed preset."
+        permissions: "everyone"
+
+      - name: "/embed_preset_post"
+        description: "Send a saved embed preset to a specific channel"
+        usage: "/embed_preset_post name:<text> channel:[text_channel]"
+        output: "The embed is posted to the target channel."
+        permissions: "Manage Messages"
+
+      - name: "/embed_preset_delete"
+        description: "Permanently remove an embed preset"
+        usage: "/embed_preset_delete name:<text>"
+        output: "Deletion confirmation."
+        permissions: "Administrator"
