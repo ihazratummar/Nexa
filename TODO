@@ -1,62 +1,265 @@
-# 🗣️ General
-TODO: Add /ytsearch - search YouTube videos by keyword
-TODO: Add /quote - get a random inspirational quote
+# ═══════════════════════════════════════════════════════════════
+#  NEXA BOT — MASTER TODO
+#  Last Updated: 2026-04-13
+# ═══════════════════════════════════════════════════════════════
 
-# 🎉 Fun
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🛡️ Moderation (Missing Commands)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /kick - kick a user from the server
+TODO: Add /mute - temporarily mute (timeout) a user
+TODO: Add /unmute - remove timeout from a user
+TODO: Add /warn - warn a user (stores in DB with reason + timestamp)
+TODO: Add /warnings - view all warnings for a user
+TODO: Add /clearwarns - clear all warnings for a user
+TODO: Add /lock - lock a text channel (deny @everyone send_messages)
+TODO: Add /unlock - unlock a text channel
+TODO: Add /slowmode - set slowmode delay for a channel
+TODO: Add /softban - ban + immediately unban to purge messages
+TODO: Add /massban - ban multiple users at once (anti-raid)
+TODO: Add /modlog - show or set moderation log channel & settings
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🎉 Fun (Missing Commands)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TODO: Add /truth - get a random truth question
 TODO: Add /dare - get a random dare
-TODO: Add /8ball - classic yes/no/maybe fun command
+TODO: Add /8ball - classic magic 8-ball yes/no/maybe answers
+TODO: Add /quote - get a random inspirational quote
+TODO: Add /would_you_rather - random "would you rather" prompt
+TODO: Add /roast - playful roast messages (SFW only)
+TODO: Add /compliment - random compliment for a user
+TODO: Add /ship - calculate a fun "compatibility %" between two users
 
-# 🎮 Games
-TODO: Add /rps - play rock-paper-scissors with the bot
-TODO: Add /trivia - answer a random trivia question
 
-# 👋 ServerSetup (Welcome)
-TODO: Add /set_boost_message - customize server boost message
-TODO: Add /set_boost_channel - set the channel for boost announcements
-TODO: Add /set_bot_role_permission - set role permission for bots
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🎮 Games (Missing Commands)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /rps - rock-paper-scissors against the bot
+TODO: Add /trivia - answer a random trivia question (multiple choice)
+TODO: Add /tictactoe - play tic-tac-toe vs another member (button-based)
+TODO: Add /connect4 - play connect-4 vs another member (button-based)
+TODO: Add /wordle - daily wordle-style word guessing game
 
-# 💎 Boosts
-TODO: Add /on_boost_message - test the boost message manually
 
-# 🛡️ Moderation
-TODO: Add /kick - kick a user from the server
-TODO: Add /mute - temporarily mute a user
-TODO: Add /unmute - remove mute from a user
-TODO: Add /warn - warn a user
-TODO: Add /clearwarns - clear all warnings for a user
-TODO: Add /lock - lock a text channel
-TODO: Add /unlock - unlock a text channel
-TODO: Add /modlog - show or set moderation log settings
-
-# 🧰 Utility
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🧰 Utility (Missing Commands)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TODO: Add /uptime - show how long the bot has been running
-TODO: Add /stats - show bot statistics (servers, users, ping)
-TODO: Add /translate - translate text to a selected language
+TODO: Add /stats - show bot statistics (servers, users, memory, ping)
+TODO: Add /translate - translate text to a selected language (Google/DeepL)
 TODO: Add /weather - get current weather for a city
-TODO: Add /serverbanner - display the server’s banner
-TODO: Add /servericon - display the server’s icon
+TODO: Add /servericon - display the server's icon in full resolution
+TODO: Add /serverbanner - display the server's banner in full resolution
+TODO: Add /roleinfo - show info about a specific role (member count, perms)
+TODO: Add /poll - create a quick poll with reactions or buttons
+TODO: Add /reminder - set a personal reminder (DM after X time)
+TODO: Add /snipe - recover the last deleted message in a channel
+TODO: Add /afk - mark yourself as AFK with a reason (auto-reply on mention)
 
-# 📜 Logs
-TODO: Add /viewlogs - view recent logs or settings
-TODO: Add /logsettings - manage which events are logged
 
-# 🧱 EmbedBuilder
-TODO: Add /embed_preset_edit_field - edit a specific embed field
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 👋 ServerSetup (Welcome — Missing)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /set_boost_message - customize server boost message template
+TODO: Add /set_bot_role_permission - set default role permissions for bots
+TODO: Add /set_goodbye_channel - set channel for goodbye/leave messages
+TODO: Add /set_goodbye_message - customize goodbye message template
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 📜 Logs (Enhancements)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /logsettings - toggle which events are logged (joins, deletes, edits, etc.)
+TODO: Add message edit logging (on_message_edit listener)
+TODO: Add message delete logging (on_message_delete listener)
+TODO: Add voice state logging (join/leave/move voice channels)
+TODO: Add channel create/delete/update logging
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🧱 EmbedBuilder (Missing Commands)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /embed_preset_edit_field - edit a specific embed field by index
 TODO: Add /embed_preset_clone - duplicate an existing embed preset
 
-# 🔗 CrossServer (Main Feature)
-TODO: Add /link_channel - link two channels across servers
-TODO: Add /unlink_channel - unlink a connected channel
-TODO: Add /list_links - list all linked channels
-TODO: Add /sync_nicknames - sync nicknames across servers
-TODO: Add /toggle_auto_sync - toggle automatic nickname sync
 
-# 💰 Premium
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 👨‍💻 DevTools (Owner Only)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /reload - hot-reload a specific cog without restart
+TODO: Add /shutdown - safely shut down the bot
+TODO: Add /eval - evaluate Python code (owner-only, sandboxed)
+TODO: Add /sync - manually sync slash commands to a guild or globally
+TODO: Add /guilds - list all guilds the bot is in
+TODO: Add /dm - send a DM to a user via the bot (owner only)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  INDUSTRY STANDARD FEATURES (New Systems)
+# ═══════════════════════════════════════════════════════════════
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🎫 Ticket System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /ticket_setup - create a ticket panel embed with "Open Ticket" button
+TODO: Add /ticket_close - close and archive a ticket channel
+TODO: Add /ticket_add - add a user to an existing ticket
+TODO: Add /ticket_remove - remove a user from a ticket
+TODO: Add /ticket_transcript - generate an HTML transcript of the ticket
+TODO: Add /ticket_category - manage ticket categories (bug, support, appeal, etc.)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 📈 Leveling & XP System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add XP gain on message (with cooldown to prevent spam farming)
+TODO: Add /rank - show your level, XP, and rank card (image-based)
+TODO: Add /leaderboard - show top members by XP (paginated)
+TODO: Add /setxp - admin: set XP for a user
+TODO: Add /resetxp - admin: reset XP for a user or all users
+TODO: Add level-up role rewards (auto-assign roles at certain levels)
+TODO: Add /xp_settings - configure XP rate, cooldown, ignored channels, etc.
+TODO: Add no-XP channel/role configuration
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🏷️ Reaction Roles / Button Roles
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /reactionrole - create a reaction role message
+TODO: Add /buttonrole - create a button-based role selector panel
+TODO: Add /dropdown_role - create a dropdown/select menu role assignment
+TODO: Add /autorole - set roles auto-assigned on join (separate from welcome role)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ⭐ Starboard
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /starboard_setup - set starboard channel and threshold (e.g. ⭐5)
+TODO: Add /starboard_ignore - ignore specific channels from starboard
+TODO: Listener: auto-post starred messages when threshold is met
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 💡 Suggestion System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /suggest - submit a suggestion (posted to dedicated channel)
+TODO: Add /suggest_approve - admin: approve a suggestion
+TODO: Add /suggest_deny - admin: deny a suggestion with reason
+TODO: Add /suggest_channel - set the suggestion channel
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🎁 Giveaway System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /giveaway_start - create a giveaway (prize, duration, winners, channel)
+TODO: Add /giveaway_end - end a giveaway early
+TODO: Add /giveaway_reroll - reroll winner(s) for a past giveaway
+TODO: Entry via button click + optional role requirements
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 📅 Event / Scheduler System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /event_create - create a scheduled event with RSVP buttons
+TODO: Add /event_list - list upcoming events
+TODO: Add /event_cancel - cancel a scheduled event
+TODO: Auto-ping attendees when event starts
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 📌 Sticky Messages (Enhancement)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /sticky - set a sticky message in a channel (re-sends at bottom)
+TODO: Add /unsticky - remove a stuck message from a channel
+TODO: Add /sticky_list - list all active sticky messages in the server
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 💰 Economy System
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /balance - check your virtual currency balance
+TODO: Add /daily - claim daily reward coins
+TODO: Add /work - earn coins with a cooldown
+TODO: Add /pay - transfer coins to another user
+TODO: Add /shop - view purchasable items (custom roles, perks)
+TODO: Add /buy - purchase an item from the shop
+TODO: Add /inventory - view your purchased items
+TODO: Add /economy_settings - admin: configure economy rates, shop items
+
+
+# ═══════════════════════════════════════════════════════════════
+#  🔥 TRENDING / CUTTING-EDGE FEATURES (2025–2026)
+# ═══════════════════════════════════════════════════════════════
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🤖 AI-Powered Features
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /ask - ask the AI anything (context-aware, uses OpenAI)
+TODO: Add /imagine - generate images via AI (DALL-E / Stable Diffusion)
+TODO: Add /tldr - AI-powered TL;DR of a long message or thread
+TODO: Add /ai_persona - admin: set a custom AI personality for the server
+TODO: Add AI-powered smart auto-moderation (toxicity + context analysis) — enhance existing automod
+TODO: Add /chat - open a persistent AI chat thread (memory across messages)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🌐 Cross-Server Features
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /link_channel - link two channels across different servers
+TODO: Add /unlink_channel - unlink a connected channel pair
+TODO: Add /list_links - list all active linked channels
+TODO: Add /sync_nicknames - sync nicknames across linked servers
+TODO: Add /toggle_auto_sync - toggle automatic nickname sync on/off
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 📊 Analytics & Insights Dashboard
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /server_activity - show message count graphs (daily/weekly/monthly)
+TODO: Add /member_growth - show member join/leave trends
+TODO: Add /top_chatters - top active members by message count
+TODO: Add /channel_stats - show per-channel activity stats
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🔔 Notification / Social Feeds
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add /twitch_notify - get notified when a Twitch streamer goes live
+TODO: Add /youtube_notify - get notified when a YouTube channel uploads
+TODO: Add /reddit_feed - auto-post new posts from a subreddit
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 💎 Premium / Monetization
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TODO: Add /premium_info - show premium plans and features
 TODO: Add /activate_premium - activate premium key or code
+TODO: Add premium feature gating middleware (check premium status before commands)
+TODO: Add premium dashboard page (web-based)
 
-# 👨‍💻 DevTools (Owner Only)
-TODO: Add /reload - reload bot cogs or modules
-TODO: Add /shutdown - safely shut down the bot
-TODO: Add /eval - evaluate code (owner only)
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🌍 Web Dashboard
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Build web dashboard for bot configuration (FastAPI + React/Next.js)
+TODO: OAuth2 login with Discord
+TODO: Server selector + per-server settings management
+TODO: Embed builder visual editor on web
+TODO: Logs viewer on web
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 🧪 Quality & Reliability
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODO: Add global error handler with user-friendly error embeds
+TODO: Add rate limiting / cooldowns per command
+TODO: Add per-command permission overrides (admin-configurable)
+TODO: Add status page / health check endpoint
+TODO: Add /feedback - users can submit feedback/bug reports directly
+TODO: Write unit tests for core services (models, utils, checks)
+TODO: Set up CI pipeline to run tests on push (extend Jenkinsfile)
