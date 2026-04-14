@@ -2,9 +2,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from core.checks import ModerationDisabled
 from core.embed.embed_builder import embed_builder
-from modules.error.custom_errors import HierarchyError, BaseBotError
+from modules.error.custom_errors import HierarchyError, BaseBotError, ModerationDisabled, GenericError
 
 
 class ErrorCog(commands.Cog):
@@ -27,39 +26,41 @@ class ErrorCog(commands.Cog):
         await self._handle_error(interaction, error)
 
     async def _handle_error(self, ctx_or_interaction: commands.Context | discord.Interaction, error):
-        error = getattr(error, 'original', error)
+        # Recursively unwrap the error to find the root cause (e.g., CommandInvokeError -> GenericError)
+        while hasattr(error, 'original') and error.original:
+            error = error.original
 
         error_map = {
             commands.CommandNotFound: ("Command Not Found", "The command you tried to use does not exist."),
             commands.RoleNotFound: "One or more roles were not found. Make sure you mention or pass valid roles.",
-            commands.DisabledCommand: ("Command Disabled", f"The command is currently disabled."),
-            commands.NoPrivateMessage: ("Server Only Command", f"The command cannot be used in private messages."),
-            commands.PrivateMessageOnly: ("DM Only Command", f"The command can only be used in private messages."),
-            commands.NotOwner: ("Owner Only Command", f"The command can only be used by the bot owner."),
-            commands.MissingPermissions: ("Missing Permissions","You do not have the required permissions to run this command."),
+            commands.DisabledCommand: ("Command Disabled", "The command is currently disabled."),
+            commands.NoPrivateMessage: ("Server Only Command", "The command cannot be used in private messages."),
+            commands.PrivateMessageOnly: ("DM Only Command", "The command can only be used in private messages."),
+            commands.NotOwner: ("Owner Only Command", "The command can only be used by the bot owner."),
+            commands.MissingPermissions: ("Missing Permissions", "You do not have the required permissions to run this command."),
             commands.BotMissingPermissions: ("Bot Missing Permissions", "I do not have the required permissions to run this command."),
             commands.CheckFailure: ("Permission Denied", "You do not have permission to use this command."),
             app_commands.CommandNotFound: ("App Command Not Found", "The application command you tried to use does not exist."),
             app_commands.MissingPermissions: ("Missing App Permissions", "You do not have the required permissions to run this application command."),
-            app_commands.BotMissingPermissions: ("Bot Missing App Permissions","I do not have the required permissions to run this application command."),
+            app_commands.BotMissingPermissions: ("Bot Missing App Permissions", "I do not have the required permissions to run this application command."),
             app_commands.MissingRole: "One or more roles were not found.",
         }
 
-        error_type = type(error)
         description = None
         title = "An Error Occurred"
 
-        if isinstance(error, BaseBotError):
-            title = error.title
+        # Check if it's one of our custom errors (BaseBotError or subclasses like GenericError)
+        if hasattr(error, 'title') or isinstance(error, BaseBotError):
+            title = getattr(error, 'title', "Error")
             description = str(error)
 
-        elif error_type in error_map:
-            result = error_map[error_type]
+        elif type(error) in error_map:
+            result = error_map[type(error)]
             if isinstance(result, tuple):
                 title, description = result
             else:
                 description = result
-        elif isinstance(error, commands.CommandOnCooldown) or isinstance(error, app_commands.CommandOnCooldown):
+        elif isinstance(error, (commands.CommandOnCooldown, app_commands.CommandOnCooldown)):
             title = "Command on Cooldown"
             description = f"This command is on cooldown. Please try again in {error.retry_after:.2f}s."
         else:

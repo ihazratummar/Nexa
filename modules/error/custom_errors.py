@@ -15,3 +15,7 @@ class ModerationDisabled(BaseBotError):
 class HierarchyError(BaseBotError):
     def __init__(self, message):
         super().__init__(message, title="Hierarchy Error")
+
+class GenericError(BaseBotError):
+    def __init__(self, message: str, title: str = "Error"):
+        super().__init__(message, title)
