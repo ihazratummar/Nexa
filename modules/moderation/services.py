@@ -31,7 +31,7 @@ class ModerationService:
     async def send_logs(
             cls,
             guild: discord.Guild,
-            action: Literal["Kick", "Ban", "Mute", "Unban", "Warn"],
+            action: Literal["Kick","Ban","Mute","UnMute","Timeout","Remove Timeout","Unban","Warn"],
             moderator: discord.Member,
             target: discord.Member,
             reason: str = None,

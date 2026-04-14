@@ -1,8 +1,7 @@
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-from core.config import settings
 from core.database import Database
 from modules.error.custom_errors import ModerationDisabled, HierarchyError
 from modules.moderation.services import ModerationService
@@ -49,6 +48,8 @@ def hierarchy_check(action: str = "moderate"):
 
         # Safety check (in case missing)
         if not member:
+            raise HierarchyError("Please provide a valid member")
+        if member == interaction.user:
             raise HierarchyError("Please provide a valid member")
         if member == interaction.guild.owner:
             raise HierarchyError(f"I wont tell the owner, but do not try to {action} the owner again.. 🫣")
