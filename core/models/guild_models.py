@@ -26,6 +26,9 @@ class WelcomeEmbed(BaseModel):
         return value
 
 
+class Roles(BaseModel):
+    mute_role_id: Optional[int] = int
+
 class LogChannel(BaseModel):
     log_channel_id: Optional[int] = None
     mod_log_channel_id: Optional[int] = None
@@ -47,6 +50,8 @@ class GuildSettings(BaseModel):
     # Logging settings
     logging_enabled: bool = True
     log_channel: Optional[LogChannel] = None
+
+    roles: Optional[Roles] = None
 
     # Leveling settings
     leveling_enabled: bool = False
