@@ -1,8 +1,10 @@
+import asyncio
 from datetime import timedelta
 
 import discord
 from discord import app_commands
 from discord.ext import commands
+from loguru import logger
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from core.checks import moderation_enabled_predicate, hierarchy_check
@@ -11,6 +13,7 @@ from core.embed.embed_builder import embed_builder
 from core.utils.time_parse import parse_duration
 from modules.Automod.services import AutoModServices
 from modules.error.custom_errors import GenericError
+from modules.guild.services import GuildService
 from modules.moderation.services import ModerationService
 
 
@@ -267,8 +270,45 @@ class ModerationCommandsCog(commands.Cog):
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {e}")
 
+    @app_commands.command(name="set_mute_role", description="Set mute role")
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.guild_only()
+    async def set_mute_role(self, interaction: discord.Interaction, role: discord.Role):
+        await interaction.response.defer()
 
+        guild = interaction.guild
+        if guild is None:
+            return
 
+        try:
+            if role >= guild.me.top_role:
+                await interaction.followup.send("I cannot manage this role due to role hierarchy.")
+                return
+
+            await GuildService.update_guild_settings(
+                guild_id=guild.id,
+                **{"roles.mute_role_id": role.id}
+            )
+
+            # ✅ Always apply to channels regardless of DB update result
+            await interaction.followup.send(
+                f"Mute role set to {role.mention}. Applying to all channels in background...")
+
+            task = asyncio.create_task(
+                ModerationService.apply_mute_role_to_channels(mute_role=role, guild=guild)
+            )
+
+            def on_done(t: asyncio.Task):
+                if t.exception():
+                    logger.error(f"Failed to apply mute role to channels: {t.exception()}")
+
+            task.add_done_callback(on_done)
+
+        except discord.Forbidden:
+            await interaction.followup.send("I don't have permission to manage channel permissions.")
+        except Exception as e:
+            logger.error(f"Failed to set mute role: {e}")
+            await interaction.followup.send(f"An error occurred: {e}")
 
 
 async def setup(bot):
