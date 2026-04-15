@@ -264,3 +264,4 @@
 [CORE][TODO][HIGH] Add status page / health check endpoint
 [CORE][TODO][HIGH] Add /feedback - users can submit feedback/bug reports directly
 [CORE][TODO][HIGH] Write unit tests for core services (models, utils, checks)
+[UI][TODO][LOW] Add Appeal Panel in Appeal Channel

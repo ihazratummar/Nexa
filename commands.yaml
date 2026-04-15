@@ -288,6 +288,97 @@ categories:
         output: "The user is removed from the ban list."
         permissions: "Manage Server"
 
+      - name: "/kick"
+        description: "Kick a user from the server"
+        usage: "/kick member:<member> reason:[text]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to kick"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Optional reasoning for the kick"
+            required: false
+        output: "The user is removed from the server."
+        permissions: "Kick Members"
+
+      - name: "/timeout"
+        description: "Apply a temporary timeout to a member"
+        usage: "/timeout duration:<time> member:<member> reason:[text]"
+        args:
+          - name: "duration"
+            type: "string"
+            description: "Duration (e.g., 10m, 1h, 1d)"
+            required: true
+            example: "1h"
+          - name: "member"
+            type: "member"
+            description: "The user to timeout"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Reason for the timeout"
+            required: false
+        output: "The user is restricted from chatting for the specified duration."
+        permissions: "Mute Members"
+
+      - name: "/remove_timeout"
+        description: "Remove an active timeout from a member"
+        usage: "/remove_timeout member:<member> reason:[text]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to restore"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Reason for removing timeout"
+            required: false
+        output: "The user's restricted access is restored."
+        permissions: "Mute Members"
+
+      - name: "/mute"
+        description: "Mute a user using the server's mute role"
+        usage: "/mute member:<member> reason:[text]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to mute"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Reason for the mute"
+            required: false
+        output: "The user is assigned the mute role."
+        permissions: "Mute Members"
+
+      - name: "/unmute"
+        description: "Remove the mute role from a user"
+        usage: "/unmute member:<member> reason:[text]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to unmute"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Reason for the unmute"
+            required: false
+        output: "The user's roles are restored as before they were muted."
+        permissions: "Mute Members"
+
+      - name: "/set_mute_role"
+        description: "Configure which role is used for muting users"
+        usage: "/set_mute_role role:<role>"
+        args:
+          - name: "role"
+            type: "role"
+            description: "The role to use as the mute role"
+            required: true
+        output: "Confirmation that the role has been set and applied to channels."
+        permissions: "Administrator"
+
   - name: "Automod"
     id: "automod"
     emoji: "🤖"
@@ -298,6 +389,33 @@ categories:
         usage: "/toggle_automod"
         output: "States whether AutoMod is now enabled or disabled."
         permissions: "Manage Messages"
+
+  - name: "Logging"
+    id: "logging"
+    emoji: "📝"
+    description: "Configure server log channels for moderation and messages"
+    commands:
+      - name: "/log mod"
+        description: "Set the channel for moderation logs (bans, kicks, timeouts, etc.)"
+        usage: "/log mod channel:[text_channel]"
+        args:
+          - name: "channel"
+            type: "text_channel"
+            description: "The channel where mod logs will be sent"
+            required: false
+        output: "Confirmation that the moderation log channel has been set."
+        permissions: "Administrator"
+
+      - name: "/log message"
+        description: "Set the channel for message activity logs (edits, deletes)"
+        usage: "/log message channel:[text_channel]"
+        args:
+          - name: "channel"
+            type: "text_channel"
+            description: "The channel where message logs will be sent"
+            required: false
+        output: "Confirmation that the message log channel has been set."
+        permissions: "Administrator"
 
   - name: "Welcome & Roles"
     id: "welcome"

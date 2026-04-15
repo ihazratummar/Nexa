@@ -88,7 +88,7 @@ class ModerationService:
             mute_role_id = guild_setting.roles.mute_role_id if guild_setting.roles else None
             if  not mute_role_id:
                 permissions = discord.Permissions(view_channel=False, send_messages=False)
-                role = await cls.create_role(guild=guild, role_name="Mute", permission= permissions)
+                role = await GuildService.create_role(guild=guild, role_name="Mute", permission= permissions)
                 guild_collection = GuildService.get_guild_collection()
 
                 update = await guild_collection.update_one(
@@ -97,6 +97,11 @@ class ModerationService:
                     upsert=True
                 )
                 if update.modified_count > 0:
+                    task = asyncio.create_task(cls.apply_mute_role_to_channels(mute_role=role, guild=guild))
+                    def on_done(task: asyncio.Task):
+                        if task.exception():
+                            logger.error(f"Failed to apply mute role in channel after mute role create")
+                    task.add_done_callback(on_done)
                     return role
                 else:
                     raise GenericError(f"Failed to create role {role.name}")
@@ -113,17 +118,7 @@ class ModerationService:
             raise GenericError(f"Failed to create role {e}")
 
 
-    @classmethod
-    async def create_role(cls, guild: discord.Guild, role_name: str, permission: discord.Permissions)-> discord.Role :
-        try:
-            existing_role = discord.utils.get(guild.roles, name=role_name)
-            if existing_role:
-                return existing_role
-            role = await guild.create_role(name=role_name, permissions=permission)
-            return role
-        except discord.Forbidden:
-            logger.error(f"Failed to create role {role_name}")
-            raise GenericError(f"I do not have permission to create role {role_name}")
+
 
     @classmethod
     async def save_member_role(cls, member: discord.Member, guild_id: int, roles: List[discord.Role]) -> bool:
@@ -159,6 +154,53 @@ class ModerationService:
             if (role := guild.get_role(role_id)) is not None
         ]
         return roles
+
+    @classmethod
+    async def apply_mute_role_to_channels(cls, mute_role: discord.Role, guild: discord.Guild):
+        """
+        Apply mute role to channels
+        """
+        permissions = discord.PermissionOverwrite(
+            view_channel=False,
+            send_messages=False,
+            speak= False,
+            connect= False,
+            create_public_threads=False,
+            send_messages_in_threads=False,
+            add_reactions=False,
+        )
+
+        appeal_channel = discord.utils.get(guild.text_channels, name="appeal")
+        if not appeal_channel:
+            try:
+                appeal_channel = await GuildService.create_channel(
+                    guild=guild,
+                    channel_name="appeal",
+                    channel_type="text",
+                    overwrites={
+                        mute_role: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+                        guild.default_role: discord.PermissionOverwrite(view_channel=False),
+                        guild.me: discord.PermissionOverwrite(view_channel=True, manage_channels=True),
+                    },
+                    reason=f"For mute role support"
+                )
+            except Exception as e:
+                logger.error(f"Failed to apply mute role to channels: {e}")
+                appeal_channel = None
+
+        failed = []
+        for channel in guild.channels:
+            if appeal_channel and  channel.id == appeal_channel.id:
+                continue
+            try:
+                await channel.set_permissions(mute_role, overwrite= permissions)
+            except discord.Forbidden:
+                failed.append(channel.name)
+            except Exception as e:
+                logger.error(f"Failed to set permission for the channel {channel.name}: {e}")
+                failed.append(channel.name)
+        if failed:
+            logger.warning(f"Failed to apply mute role to channels {', '.join(failed)}")
 
 
 
