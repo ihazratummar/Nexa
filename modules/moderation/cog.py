@@ -1,5 +1,6 @@
 import asyncio
 from datetime import timedelta
+from typing import Union
 
 import discord
 from discord import app_commands
@@ -234,7 +235,7 @@ class ModerationCommandsCog(commands.Cog):
                 if not role.is_default() and role.id != mute_role.id
             ]
             if roles:
-                await ModerationService.save_member_role(member= member, guild_id=guild.id, roles=roles)
+                await ModerationService.save_member_role(member=member, guild_id=guild.id, roles=roles)
 
             await member.edit(roles=[mute_role], reason=reason_text)
             await interaction.followup.send(f"{member.mention} has been muted from the server.")
@@ -262,10 +263,9 @@ class ModerationCommandsCog(commands.Cog):
             if mute_role not in member.roles:
                 raise GenericError("Failed to unmute because, user is not muted in this server")
 
-
             reason_text = reason or "No reason provided."
-            user_roles = await ModerationService.get_user_roles_from_database(user_id=member.id, guild= guild)
-            await member.edit(roles= user_roles or [], reason= reason_text)
+            user_roles = await ModerationService.get_user_roles_from_database(user_id=member.id, guild=guild)
+            await member.edit(roles=user_roles or [], reason=reason_text)
             await interaction.followup.send(f"{member.mention} has been unmuted from the server.")
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {e}")
@@ -308,6 +308,71 @@ class ModerationCommandsCog(commands.Cog):
             await interaction.followup.send("I don't have permission to manage channel permissions.")
         except Exception as e:
             logger.error(f"Failed to set mute role: {e}")
+            await interaction.followup.send(f"An error occurred: {e}")
+
+    @app_commands.command(name="slowmode", description="Set slowmode delay for a channel")
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.guild_only()
+    @app_commands.check(moderation_enabled_predicate)
+    @app_commands.describe(
+        channel="Mention a channel",
+        duration="Set duration. Ex: 0 to disable, 10s, 10m, 1h, 6h",
+    )
+    async def slowmode(
+            self,
+            interaction: discord.Interaction,
+            duration: str,
+            channel: Union[discord.TextChannel, discord.VoiceChannel, discord.ForumChannel, discord.StageChannel, discord.Thread] = None
+    ):
+        await interaction.response.defer()
+
+        try:
+            SLOWMODE_SUPPORTED = (
+                discord.TextChannel,
+                discord.VoiceChannel,
+                discord.Thread,
+                discord.ForumChannel,
+            )
+            # Resolve channel
+            target_channel = channel or interaction.channel
+            if not isinstance(target_channel, SLOWMODE_SUPPORTED):
+                await interaction.followup.send("Slowmode is not supported for this channel type.")
+                return
+
+            # ✅ Handle "0" as disable before parsing
+            if duration.strip() == "0":
+                parsed_time = timedelta(seconds=0)
+            else:
+                try:
+                    parsed_time = parse_duration(duration_str=duration)
+                except Exception:
+                    await interaction.followup.send(
+                        f"Invalid duration format `{duration}`. Ex: `0` to disable, `10s`, `5m`, `1h`, `6h`")
+                    return
+
+            max_duration = timedelta(hours=6)
+            # ✅ Allow 0 to disable slowmode
+            if parsed_time.total_seconds() < 0:
+                await interaction.followup.send("Duration cannot be negative.")
+                return
+
+            if parsed_time > max_duration:
+                await interaction.followup.send("Slowmode duration cannot exceed 6 hours.")
+                return
+
+            duration_in_seconds = int(parsed_time.total_seconds())
+            await target_channel.edit(slowmode_delay=duration_in_seconds)
+            # ✅ Clean success message
+            if duration_in_seconds == 0:
+                await interaction.followup.send(f"Slowmode disabled in {target_channel.mention}.")
+            else:
+                await interaction.followup.send(f"Slowmode set to `{duration}` in {target_channel.mention}.")
+        except ValueError as e:
+            await interaction.followup.send(f"Invalid duration format: {e}")
+        except discord.Forbidden:
+            await interaction.followup.send("I don't have permission to manage channel permissions.")
+        except Exception as e:
+            logger.error(f"Failed to set slowmode: {e}")
             await interaction.followup.send(f"An error occurred: {e}")
 
 
