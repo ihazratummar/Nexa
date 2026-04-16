@@ -17,7 +17,7 @@
 [MOD][TODO][HIGH] Add /clearwarns - clear all warnings for a user
 [MOD][TODO][HIGH] Add /lock - lock a text channel (deny @everyone send_messages)
 [MOD][TODO][HIGH] Add /unlock - unlock a text channel
-[MOD][TODO][HIGH] Add /slowmode - set slowmode delay for a channel
+[MOD][DONE][HIGH] Add /slowmode - set slowmode delay for a channel
 [MOD][TODO][HIGH] Add /softban - ban + immediately unban to purge messages
 [MOD][TODO][HIGH] Add /massban - ban multiple users at once (anti-raid)
 [MOD][TODO][HIGH] Add /modlog - show or set moderation log channel & settings

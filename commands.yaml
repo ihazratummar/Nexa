@@ -379,6 +379,22 @@ categories:
         output: "Confirmation that the role has been set and applied to channels."
         permissions: "Administrator"
 
+      - name: "/slowmode"
+        description: "Set a message delay (slowmode) for a channel to prevent spam"
+        usage: "/slowmode duration:<duration> channel:[channel]"
+        args:
+          - name: "duration"
+            type: "string"
+            description: "The delay duration (e.g., 0 to disable, 10s, 5m, 1h)"
+            required: true
+            example: "10s"
+          - name: "channel"
+            type: "channel"
+            description: "The channel to apply slowmode to"
+            required: false
+        output: "Confirmation that slowmode has been set or disabled for the target channel."
+        permissions: "Administrator"
+
   - name: "Automod"
     id: "automod"
     emoji: "🤖"

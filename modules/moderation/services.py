@@ -21,7 +21,7 @@ class ModerationService:
         return Database.moderation_settings()
 
     @classmethod
-    async def get_mod_settings(cls, guild_id: str) -> ModerationSettings:
+    async def get_mod_settings(cls, guild_id: int) -> ModerationSettings:
         mod_collection = cls.get_moderation_settings_collection()
         data = await mod_collection.find_one({"guild_id": guild_id})
         if data:
@@ -202,10 +202,56 @@ class ModerationService:
         if failed:
             logger.warning(f"Failed to apply mute role to channels {', '.join(failed)}")
 
+    @classmethod
+    async def apply_mute_role_to_single_channel(
+            cls,
+            guild: discord.Guild,
+            channel: discord.abc.GuildChannel,
+    ):
+        """Apply mute role to single channel"""
 
+        if channel.name.lower() == "appeal":
+            return
 
+        mod_settings = await ModerationService.get_mod_settings(guild_id=guild.id)
+        if not mod_settings:
+            logger.warning("Moderation collection is not found")
+            return
+        if not not mod_settings.is_moderation_settings_enabled:
+            logger.warning("Moderation settings disabled or missing")
+            return
 
+        guild_settings = await GuildService.get_guild_setting(guild_id=guild.id)
+        if not guild_settings or not guild_settings.roles:
+            logger.warning("Guild settings or roles missing")
+            return
 
+        mute_role_id = guild_settings.roles.mute_role_id
+        if not mute_role_id:
+            return
+
+        mute_role = guild.get_role(mute_role_id)
+        if not mute_role:
+            logger.warning("Mute role not found")
+            return
+
+        permissions = discord.PermissionOverwrite(
+            view_channel=False,  # important fix
+            send_messages=False,
+            speak=False,
+            connect=False,
+            create_public_threads=False,
+            create_private_threads=False,
+            send_messages_in_threads=False,
+            add_reactions=False,
+        )
+
+        try:
+            await channel.set_permissions(mute_role, overwrite=permissions)
+        except discord.Forbidden:
+            logger.error("Missing permissions to set channel permissions")
+        except Exception as e:
+            logger.error(f"Failed to apply mute role: {e}")
 
 
 
