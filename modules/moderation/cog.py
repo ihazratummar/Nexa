@@ -56,6 +56,23 @@ class ModerationCommandsCog(commands.Cog):
         try:
             await member.ban(reason=f"For violating discord server rules.")
             await interaction.followup.send(f"{member.mention} has been banned from this server for good.")
+            task = []
+            task.append(
+                ModerationService.send_logs(
+                    guild=interaction.guild,
+                    action="Ban",
+                    moderator=interaction.user,
+                    target=member,
+                )
+            )
+            task.append(
+                ModerationService.send_logs(
+                    guild=interaction.guild,
+                    action="Ban",
+                    moderator=interaction.user,
+                    target=member,
+                )
+            )
         except discord.Forbidden:
             await interaction.followup.send("❌ I do not have permission to ban this member.")
         except Exception as e:
@@ -127,12 +144,24 @@ class ModerationCommandsCog(commands.Cog):
 
         await interaction.followup.send(f"{member.mention} has been kicked from this server.")
 
-        await ModerationService.send_logs(
-            guild=interaction.guild,
-            action="Kick",
-            moderator=interaction.user,
-            target=member,
-            reason=reason_text
+        task = []
+        task.append(
+            ModerationService.send_logs(
+                guild=interaction.guild,
+                action="Kick",
+                moderator=interaction.user,
+                target=member,
+                reason=reason_text
+            )
+        )
+        task.append(
+            ModerationService.send_logs(
+                guild=interaction.guild,
+                action="Kick",
+                moderator=interaction.user,
+                target=member,
+                reason=reason_text
+            )
         )
 
     @app_commands.command(name="timeout", description="Timeout a user")
@@ -173,13 +202,26 @@ class ModerationCommandsCog(commands.Cog):
         except discord.Forbidden:
             await interaction.followup.send(f"Failed to timeout the user due to lack of permissions", ephemeral=True)
 
-        await ModerationService.send_logs(
+        task = []
+        task.append(ModerationService.record_moderation_logs(
+            guild_id=interaction.guild_id,
+            offender_id=member.id,
+            moderator_id=interaction.user.id,
+            reason=reason_text,
+            action_type="Mute"
+        ))
+        task.append(ModerationService.send_logs(
             guild=interaction.guild,
             action="Timeout",
             moderator=interaction.user,
             target=member,
             reason=reason_text
-        )
+        ))
+
+        results = await asyncio.gather(*task, return_exceptions=True)
+        for res in results:
+            if isinstance(res, Exception):
+                logger.error(f"Error occurred during the timeout action: {res}")
 
     @app_commands.command(name="remove_timeout", description="Remove a user timed out")
     @app_commands.default_permissions(mute_members=True)
@@ -215,14 +257,18 @@ class ModerationCommandsCog(commands.Cog):
     @app_commands.describe(
         member="Mention a server member",
     )
-    async def mute(self, interaction: discord.Interaction, member: discord.Member, reason: str = None):
+    async def mute_command(self, interaction: discord.Interaction, member: discord.Member, reason: str = None):
         await interaction.response.defer()
-        guild = interaction.guild
-        if guild is None:
+        await self.mute(interaction, member, reason)
+
+    @staticmethod
+    async def mute(interaction: discord.Interaction, member: discord.Member, reason: str = None):
+        _guild = interaction.guild
+        if _guild is None:
             return
         try:
             reason_text = reason or "No reason provided."
-            mute_role = await ModerationService.get_or_create_mute_role(guild=guild)
+            mute_role = await ModerationService.get_or_create_mute_role(guild=_guild)
             if not mute_role:
                 raise GenericError("Failed to mute because of mute role failure")
 
@@ -235,10 +281,17 @@ class ModerationCommandsCog(commands.Cog):
                 if not role.is_default() and role.id != mute_role.id
             ]
             if roles:
-                await ModerationService.save_member_role(member=member, guild_id=guild.id, roles=roles)
+                await ModerationService.save_member_role(member=member, guild_id=_guild.id, roles=roles)
 
             await member.edit(roles=[mute_role], reason=reason_text)
             await interaction.followup.send(f"{member.mention} has been muted from the server.")
+            asyncio.create_task(ModerationService.record_moderation_logs(
+                guild_id=_guild.id,
+                offender_id=member.id,
+                moderator_id=interaction.user.id,
+                reason=reason_text,
+                action_type="Mute"
+            ))
         except Exception as e:
             await interaction.followup.send(f"An error occurred: {e}")
 
@@ -322,7 +375,8 @@ class ModerationCommandsCog(commands.Cog):
             self,
             interaction: discord.Interaction,
             duration: str,
-            channel: Union[discord.TextChannel, discord.VoiceChannel, discord.ForumChannel, discord.StageChannel, discord.Thread] = None
+            channel: Union[
+                discord.TextChannel, discord.VoiceChannel, discord.ForumChannel, discord.StageChannel, discord.Thread] = None
     ):
         await interaction.response.defer()
 
@@ -374,6 +428,112 @@ class ModerationCommandsCog(commands.Cog):
         except Exception as e:
             logger.error(f"Failed to set slowmode: {e}")
             await interaction.followup.send(f"An error occurred: {e}")
+
+    @app_commands.command(name="warn", description="Warn a user")
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.guild_only()
+    @app_commands.check(moderation_enabled_predicate)
+    @hierarchy_check(action="warn")
+    @app_commands.describe(
+        member="Mention a user to warn",
+        reason="Reason for the warning"
+    )
+    async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str = "No reason provided"):
+        """
+        Warn a user and handle automatic punishments if thresholds are reached.
+        """
+        await interaction.response.defer()
+
+        try:
+            guild = interaction.guild
+            if guild is None:
+                return
+
+            # 1. Count existing active warnings
+            offense_count = await ModerationService.get_offense_count(
+                guild_id=guild.id,
+                offender_id=member.id,
+                action_type="Warn"
+            )
+
+            # 2. Record the new warning in DB
+            await ModerationService.record_moderation_logs(
+                guild_id=guild.id,
+                offender_id=member.id,
+                moderator_id=interaction.user.id,
+                action_type="Warn",
+                reason=reason
+            )
+
+            # 3. Notification Embed for the current interaction
+            embed = discord.Embed(
+                title="User Warned",
+                color=discord.Color.gold(),
+                timestamp=discord.utils.utcnow()
+            )
+            embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
+            embed.add_field(name="User", value=f"{member.mention} (`{member.id}`)", inline=True)
+            embed.add_field(name="Moderator", value=f"{interaction.user.mention}", inline=True)
+            embed.add_field(name="Reason", value=reason, inline=False)
+            embed.add_field(name="Total Warnings", value=f"{offense_count + 1}", inline=True)
+            embed.set_footer(text="Nexa Moderation")
+
+            await interaction.followup.send(embed=embed)
+
+            # 4. DM the user
+            try:
+                dm_embed = discord.Embed(
+                    title=f"You have been warned in {guild.name}",
+                    description=f"**Reason:** {reason}",
+                    color=discord.Color.orange(),
+                    timestamp=discord.utils.utcnow()
+                )
+                await member.send(embed=dm_embed)
+            except discord.Forbidden:
+                logger.warning(f"Could not DM user {member.id} about their warning.")
+
+            # 5. Log to mod-log channel
+            guild_data = await GuildService.get_guild_setting(guild_id=guild.id)
+            if guild_data and guild_data.log_channel and guild_data.log_channel.mod_log_channel_id:
+                log_channel = guild.get_channel(guild_data.log_channel.mod_log_channel_id)
+                if log_channel:
+                    log_embed = discord.Embed(
+                        title="Member Warned",
+                        color=discord.Color.gold(),
+                        timestamp=discord.utils.utcnow()
+                    )
+                    log_embed.set_thumbnail(url=member.display_avatar.url)
+                    log_embed.add_field(name="Target", value=f"{member.mention} ({member.id})", inline=False)
+                    log_embed.add_field(name="Moderator", value=f"{interaction.user.mention} ({interaction.user.id})",
+                                        inline=False)
+                    log_embed.add_field(name="Reason", value=reason, inline=False)
+                    log_embed.add_field(name="History", value=f"Warning #{offense_count + 1}", inline=False)
+                    await log_channel.send(embed=log_embed)
+
+            # 6. Automatic Punishment Logic (e.g., Mute on 3rd warn)
+            if offense_count is not None and offense_count >= 2:  # Already has 2, this is 3rd
+                mute_reason = f"Automatic mute: reached 3 warnings. Latest warn: {reason}"
+
+                # Perform mute
+                await self.mute(interaction=interaction, member=member, reason=mute_reason)
+
+                # Resolve the warnings in DB
+                await ModerationService.resolve_offense_logs(
+                    guild_id=guild.id,
+                    offender_id=member.id,
+                    action_type="Warn"
+                )
+
+                # Send additional follow-up for the threshold reached
+                threshold_embed = discord.Embed(
+                    description=f"🛡️ {member.mention} has been automatically muted for reaching the **3-warning threshold**.",
+                    color=discord.Color.red()
+                )
+                await interaction.followup.send(embed=threshold_embed)
+
+        except Exception as e:
+            logger.error(f"Failed to warn: {e}")
+            await interaction.followup.send(f"An error occurred while processing the warning: {e}", ephemeral=True)
 
 
 async def setup(bot):

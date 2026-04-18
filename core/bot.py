@@ -45,7 +45,6 @@ class NexaBot(AutoShardedBot):
         Load core directory extensions if any (e.g., global listeners)
         Load 'module' directory
         """
-
         if os.path.exists("modules"):
             for root, dirs, files in os.walk("modules"):
                 for file in files:
@@ -76,7 +75,6 @@ class NexaBot(AutoShardedBot):
 
         if not self.scheduler.running:
             self.scheduler.start()
-
 
 
     async def close(self) -> None:

@@ -11,6 +11,7 @@ from core.models.guild_models import ModerationSettings, Roles
 from core.models.user_model import UserModel
 from modules.error.custom_errors import GenericError
 from modules.guild.services import GuildService
+from modules.moderation.model import ModerationLogModel
 from modules.user.user_service import UserService
 
 
@@ -19,6 +20,10 @@ class ModerationService:
     @classmethod
     def get_moderation_settings_collection(cls) -> AsyncIOMotorCollection:
         return Database.moderation_settings()
+
+    @classmethod
+    def get_moderation_logs_collection(cls) -> AsyncIOMotorCollection:
+        return Database.moderation_logs()
 
     @classmethod
     async def get_mod_settings(cls, guild_id: int) -> ModerationSettings:
@@ -36,7 +41,7 @@ class ModerationService:
     async def send_logs(
             cls,
             guild: discord.Guild,
-            action: Literal["Kick","Ban","Mute","UnMute","Timeout","Remove Timeout","Unban","Warn"],
+            action: Literal["Kick", "Ban", "Mute", "UnMute", "Timeout", "Remove Timeout", "Unban", "Warn"],
             moderator: discord.Member,
             target: discord.Member,
             reason: str = None,
@@ -62,8 +67,8 @@ class ModerationService:
 
         embed = discord.Embed(
             title=f"🔨{action.capitalize()}",
-            color= color_map.get(action, discord.Color.orange()),
-            timestamp= discord.utils.utcnow()
+            color=color_map.get(action, discord.Color.orange()),
+            timestamp=discord.utils.utcnow()
         )
         embed.add_field(name="User", value=f"{target.name} {target.id}", inline=True)
         embed.add_field(name="Moderator", value=f"{moderator.mention}", inline=True)
@@ -72,9 +77,8 @@ class ModerationService:
 
         asyncio.create_task(channel.send(embed=embed))
 
-
     @classmethod
-    async def get_or_create_mute_role(cls, guild: discord.Guild)-> discord.Role:
+    async def get_or_create_mute_role(cls, guild: discord.Guild) -> discord.Role:
         """
         Get Mute role by guild
         """
@@ -86,21 +90,23 @@ class ModerationService:
 
             ## Check role id in guild collection
             mute_role_id = guild_setting.roles.mute_role_id if guild_setting.roles else None
-            if  not mute_role_id:
+            if not mute_role_id:
                 permissions = discord.Permissions(view_channel=False, send_messages=False)
-                role = await GuildService.create_role(guild=guild, role_name="Mute", permission= permissions)
+                role = await GuildService.create_role(guild=guild, role_name="Mute", permission=permissions)
                 guild_collection = GuildService.get_guild_collection()
 
                 update = await guild_collection.update_one(
                     {"guild_id": guild.id},
-                    {"$set":{"roles.mute_role_id": role.id}},
+                    {"$set": {"roles.mute_role_id": role.id}},
                     upsert=True
                 )
                 if update.modified_count > 0:
                     task = asyncio.create_task(cls.apply_mute_role_to_channels(mute_role=role, guild=guild))
+
                     def on_done(task: asyncio.Task):
                         if task.exception():
                             logger.error(f"Failed to apply mute role in channel after mute role create")
+
                     task.add_done_callback(on_done)
                     return role
                 else:
@@ -116,9 +122,6 @@ class ModerationService:
         except Exception as e:
             logger.error(f"Failed to create role {e}")
             raise GenericError(f"Failed to create role {e}")
-
-
-
 
     @classmethod
     async def save_member_role(cls, member: discord.Member, guild_id: int, roles: List[discord.Role]) -> bool:
@@ -137,7 +140,6 @@ class ModerationService:
             upsert=True
         )
         return result.modified_count > 0 or result.upserted_id is not None
-
 
     @classmethod
     async def get_user_roles_from_database(cls, user_id: int, guild: discord.Guild) -> Optional[List[discord.Role]]:
@@ -163,8 +165,8 @@ class ModerationService:
         permissions = discord.PermissionOverwrite(
             view_channel=False,
             send_messages=False,
-            speak= False,
-            connect= False,
+            speak=False,
+            connect=False,
             create_public_threads=False,
             send_messages_in_threads=False,
             add_reactions=False,
@@ -178,7 +180,8 @@ class ModerationService:
                     channel_name="appeal",
                     channel_type="text",
                     overwrites={
-                        mute_role: discord.PermissionOverwrite(view_channel=True, send_messages=True, read_message_history=True),
+                        mute_role: discord.PermissionOverwrite(view_channel=True, send_messages=True,
+                                                               read_message_history=True),
                         guild.default_role: discord.PermissionOverwrite(view_channel=False),
                         guild.me: discord.PermissionOverwrite(view_channel=True, manage_channels=True),
                     },
@@ -190,10 +193,10 @@ class ModerationService:
 
         failed = []
         for channel in guild.channels:
-            if appeal_channel and  channel.id == appeal_channel.id:
+            if appeal_channel and channel.id == appeal_channel.id:
                 continue
             try:
-                await channel.set_permissions(mute_role, overwrite= permissions)
+                await channel.set_permissions(mute_role, overwrite=permissions)
             except discord.Forbidden:
                 failed.append(channel.name)
             except Exception as e:
@@ -253,6 +256,91 @@ class ModerationService:
         except Exception as e:
             logger.error(f"Failed to apply mute role: {e}")
 
+    @classmethod
+    async def record_moderation_logs(
+            cls,
+            guild_id: int,
+            offender_id: int,
+            moderator_id: int,
+            action_type: Literal['Kick', 'Timeout', 'Warn', 'Mute', 'Ban'],
+            reason: Optional[str] = None
+    ):
+        """
+        Record moderation logs
+        """
+
+        collection = cls.get_moderation_logs_collection()
+        if collection is None:
+            return
+
+        moderation_logs = ModerationLogModel(
+            guild_id=guild_id,
+            offender_id=offender_id,
+            action_type=action_type,
+            moderator_id=moderator_id,
+            reason=reason
+        )
+        await collection.insert_one(moderation_logs.to_mongo())
 
 
+    @classmethod
+    async def get_offense_count(
+            cls,
+            guild_id: int,
+            offender_id: int,
+            action_type: Literal['Kick', 'Timeout', 'Warn', 'Mute', 'Ban']
+    ):
+        """
+        Get moderation logs for an offender
+        """
+        try:
+            collection = cls.get_moderation_logs_collection()
+            if collection is None:
+                return None
+            count = await collection.count_documents(
+                {
+                    "guild_id": guild_id,
+                    "offender_id": offender_id,
+                    "action_type": action_type,
+                    "resolved": False  # ✅ only active offenses
+                }
+            )
+            return count
+        except Exception as e:
+            logger.error(f"Failed to get moderation logs for offender: {e}")
+            return None
+
+    @classmethod
+    async def resolve_offense_logs(
+            cls,
+            guild_id: int,
+            offender_id: int,
+            action_type: Literal['Kick', 'Timeout', 'Warn', 'Mute', 'Ban']
+    ) -> int:
+        """
+        Mark moderation logs as resolved after punishment
+        """
+
+        try:
+            collection = cls.get_moderation_logs_collection()
+            if collection is None:
+                return 0
+
+            result = await collection.update_many(
+                {
+                    "guild_id": guild_id,
+                    "offender_id": offender_id,
+                    "action_type": action_type,
+                    "resolved": False
+                },
+                {
+                    "$set": {"resolved": True}
+                }
+            )
+
+            return result.modified_count  # ✅ useful
+
+        except Exception as e:
+            logger.error(f"Failed to resolve moderation logs: {e}")
+            return 0
 

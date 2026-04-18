@@ -12,7 +12,7 @@
 [MOD][DONE][HIGH] Add /remove_timeout - Remove timeout from a user
 [MOD][DONE][HIGH] Add /mute - temporarily mute a user and add a mute role
 [MOD][DONE][HIGH] Add /unmute - remove temporarily mute from a user and add user's previous roles
-[MOD][TODO][HIGH] Add /warn - warn a user (stores in DB with reason + timestamp)
+[MOD][DONE][HIGH] Add /warn - warn a user (stores in DB with reason + timestamp)
 [MOD][TODO][HIGH] Add /warnings - view all warnings for a user
 [MOD][TODO][HIGH] Add /clearwarns - clear all warnings for a user
 [MOD][TODO][HIGH] Add /lock - lock a text channel (deny @everyone send_messages)
@@ -49,43 +49,43 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🧰 Utility (Missing Commands)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[UTIL][TODO][MED] Add /uptime - show how long the bot has been running
-[UTIL][TODO][MED] Add /stats - show bot statistics (servers, users, memory, ping)
-[UTIL][TODO][MED] Add /translate - translate text to a selected language (Google/DeepL)
-[UTIL][TODO][MED] Add /weather - get current weather for a city
-[UTIL][TODO][MED] Add /servericon - display the server's icon in full resolution
-[UTIL][TODO][MED] Add /serverbanner - display the server's banner in full resolution
-[UTIL][TODO][MED] Add /roleinfo - show info about a specific role (member count, perms)
-[UTIL][TODO][MED] Add /poll - create a quick poll with reactions or buttons
-[UTIL][TODO][MED] Add /reminder - set a personal reminder (DM after X time)
-[UTIL][TODO][MED] Add /snipe - recover the last deleted message in a channel
-[UTIL][TODO][MED] Add /afk - mark yourself as AFK with a reason (auto-reply on mention)
+[UTIL][TODO][MEDIUM] Add /uptime - show how long the bot has been running
+[UTIL][TODO][MEDIUM] Add /stats - show bot statistics (servers, users, memory, ping)
+[UTIL][TODO][MEDIUM] Add /translate - translate text to a selected language (Google/DeepL)
+[UTIL][TODO][MEDIUM] Add /weather - get current weather for a city
+[UTIL][TODO][MEDIUM] Add /servericon - display the server's icon in full resolution
+[UTIL][TODO][MEDIUM] Add /serverbanner - display the server's banner in full resolution
+[UTIL][TODO][MEDIUM] Add /roleinfo - show info about a specific role (member count, perms)
+[UTIL][TODO][MEDIUM] Add /poll - create a quick poll with reactions or buttons
+[UTIL][TODO][MEDIUM] Add /reminder - set a personal reminder (DM after X time)
+[UTIL][TODO][MEDIUM] Add /snipe - recover the last deleted message in a channel
+[UTIL][TODO][MEDIUM] Add /afk - mark yourself as AFK with a reason (auto-reply on mention)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 👋 ServerSetup (Welcome — Missing)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[SETUP][TODO][MED] Add /set_boost_message - customize server boost message template
-[SETUP][TODO][MED] Add /set_bot_role_permission - set default role permissions for bots
-[SETUP][TODO][MED] Add /set_goodbye_channel - set channel for goodbye/leave messages
-[SETUP][TODO][MED] Add /set_goodbye_message - customize goodbye message template
+[SETUP][TODO][MEDIUM] Add /set_boost_message - customize server boost message template
+[SETUP][TODO][MEDIUM] Add /set_bot_role_permission - set default role permissions for bots
+[SETUP][TODO][MEDIUM] Add /set_goodbye_channel - set channel for goodbye/leave messages
+[SETUP][TODO][MEDIUM] Add /set_goodbye_message - customize goodbye message template
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 📜 Logs (Enhancements)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[LOGS][TODO][MED] Add /logsettings - toggle which events are logged (joins, deletes, edits, etc.)
-[LOGS][TODO][MED] Add message edit logging (on_message_edit listener)
-[LOGS][TODO][MED] Add message delete logging (on_message_delete listener)
-[LOGS][TODO][MED] Add voice state logging (join/leave/move voice channels)
-[LOGS][TODO][MED] Add channel create/delete/update logging
+[LOGS][TODO][MEDIUM] Add /logsettings - toggle which events are logged (joins, deletes, edits, etc.)
+[LOGS][TODO][MEDIUM] Add message edit logging (on_message_edit listener)
+[LOGS][TODO][MEDIUM] Add message delete logging (on_message_delete listener)
+[LOGS][TODO][MEDIUM] Add voice state logging (join/leave/move voice channels)
+[LOGS][TODO][MEDIUM] Add channel create/delete/update logging
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🧱 EmbedBuilder (Missing Commands)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[EMBED][TODO][MED] Add /embed_preset_edit_field - edit a specific embed field by index
-[EMBED][TODO][MED] Add /embed_preset_clone - duplicate an existing embed preset
+[EMBED][TODO][MEDIUM] Add /embed_preset_edit_field - edit a specific embed field by index
+[EMBED][TODO][MEDIUM] Add /embed_preset_clone - duplicate an existing embed preset
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,34 +107,36 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🎫 Ticket System
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[TICKET][TODO][MED] Add /ticket_setup - create a ticket panel embed with "Open Ticket" button
-[TICKET][TODO][MED] Add /ticket_close - close and archive a ticket channel
-[TICKET][TODO][MED] Add /ticket_add - add a user to an existing ticket
-[TICKET][TODO][MED] Add /ticket_remove - remove a user from a ticket
-[TICKET][TODO][MED] Add /ticket_transcript - generate an HTML transcript of the ticket
-[TICKET][TODO][MED] Add /ticket_category - manage ticket categories (bug, support, appeal, etc.)
+[TICKET][TODO][MEDIUM] Add /ticket_setup - create a ticket panel embed with "Open Ticket" button
+[TICKET][TODO][MEDIUM] Add /ticket_close - close and archive a ticket channel
+[TICKET][TODO][MEDIUM] Add /ticket_add - add a user to an existing ticket
+[TICKET][TODO][MEDIUM] Add /ticket_remove - remove a user from a ticket
+[TICKET][TODO][MEDIUM] Add /ticket_transcript - generate an HTML transcript of the ticket
+[TICKET][TODO][MEDIUM] Add /ticket_category - manage ticket categories (bug, support, appeal, etc.)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 📈 Leveling & XP System
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[XP][TODO][MED] Add XP gain on message (with cooldown to prevent spam farming)
-[XP][TODO][MED] Add /rank - show your level, XP, and rank card (image-based)
-[XP][TODO][MED] Add /leaderboard - show top members by XP (paginated)
-[XP][TODO][MED] Add /setxp - admin: set XP for a user
-[XP][TODO][MED] Add /resetxp - admin: reset XP for a user or all users
-[XP][TODO][MED] Add level-up role rewards (auto-assign roles at certain levels)
-[XP][TODO][MED] Add /xp_settings - configure XP rate, cooldown, ignored channels, etc.
-[XP][TODO][MED] Add no-XP channel/role configuration
+[XP][TODO][MEDIUM] Add XP gain on message (with cooldown to prevent spam farming)
+[XP][TODO][MEDIUM] Add /rank - show your level, XP, and rank card (image-based)
+[XP][TODO][MEDIUM] Add /leaderboard - show top members by XP (paginated)
+[XP][TODO][MEDIUM] Add /setxp - admin: set XP for a user
+[XP][TODO][MEDIUM] Add /resetxp - admin: reset XP for a user or all users
+[XP][TODO][MEDIUM] Add level-up role rewards (auto-assign roles at certain levels)
+[XP][TODO][MEDIUM] Add /xp_settings - configure XP rate, cooldown, ignored channels, etc.
+[XP][TODO][MEDIUM] Add no-XP channel/role configuration
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🏷️ Reaction Roles / Button Roles
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[ROLES][TODO][MED] Add /reactionrole - create a reaction role message
-[ROLES][TODO][MED] Add /buttonrole - create a button-based role selector panel
-[ROLES][TODO][MED] Add /dropdown_role - create a dropdown/select menu role assignment
-[ROLES][TODO][MED] Add /autorole - set roles auto-assigned on join (separate from welcome role)
+[ROLES][TODO][MEDIUM] Add /reactionrole - create a reaction role message
+[ROLES][TODO][MEDIUM] Add /buttonrole - create a button-based role selector panel
+[ROLES][TODO][MEDIUM] Add /dropdown_role - create a dropdown/select menu role assignment
+[ROLES][TODO][MEDIUM] Add /autorole - set roles auto-assigned on join (separate from welcome role)
+
+[ROLES][FIXME][MEDIUM] Add /autorole - Fix autorole command
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -166,31 +168,31 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 📅 Event / Scheduler System
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[EVENT][TODO][MED] Add /event_create - create a scheduled event with RSVP buttons
-[EVENT][TODO][MED] Add /event_list - list upcoming events
-[EVENT][TODO][MED] Add /event_cancel - cancel a scheduled event
-[EVENT][TODO][MED] Auto-ping attendees when event starts
+[EVENT][TODO][MEDIUM] Add /event_create - create a scheduled event with RSVP buttons
+[EVENT][TODO][MEDIUM] Add /event_list - list upcoming events
+[EVENT][TODO][MEDIUM] Add /event_cancel - cancel a scheduled event
+[EVENT][TODO][MEDIUM] Auto-ping attendees when event starts
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 📌 Sticky Messages (Enhancement)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[STICKY][TODO][MED] Add /sticky - set a sticky message in a channel (re-sends at bottom)
-[STICKY][TODO][MED] Add /unsticky - remove a stuck message from a channel
-[STICKY][TODO][MED] Add /sticky_list - list all active sticky messages in the server
+[STICKY][TODO][MEDIUM] Add /sticky - set a sticky message in a channel (re-sends at bottom)
+[STICKY][TODO][MEDIUM] Add /unsticky - remove a stuck message from a channel
+[STICKY][TODO][MEDIUM] Add /sticky_list - list all active sticky messages in the server
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 💰 Economy System
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[ECON][TODO][MED] Add /balance - check your virtual currency balance
-[ECON][TODO][MED] Add /daily - claim daily reward coins
-[ECON][TODO][MED] Add /work - earn coins with a cooldown
-[ECON][TODO][MED] Add /pay - transfer coins to another user
-[ECON][TODO][MED] Add /shop - view purchasable items (custom roles, perks)
-[ECON][TODO][MED] Add /buy - purchase an item from the shop
-[ECON][TODO][MED] Add /inventory - view your purchased items
-[ECON][TODO][MED] Add /economy_settings - admin: configure economy rates, shop items
+[ECON][TODO][MEDIUM] Add /balance - check your virtual currency balance
+[ECON][TODO][MEDIUM] Add /daily - claim daily reward coins
+[ECON][TODO][MEDIUM] Add /work - earn coins with a cooldown
+[ECON][TODO][MEDIUM] Add /pay - transfer coins to another user
+[ECON][TODO][MEDIUM] Add /shop - view purchasable items (custom roles, perks)
+[ECON][TODO][MEDIUM] Add /buy - purchase an item from the shop
+[ECON][TODO][MEDIUM] Add /inventory - view your purchased items
+[ECON][TODO][MEDIUM] Add /economy_settings - admin: configure economy rates, shop items
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -201,12 +203,12 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🤖 AI-Powered Features
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[AI][TODO][MED] Add /ask - ask the AI anything (context-aware, uses OpenAI)
-[AI][TODO][MED] Add /imagine - generate images via AI (DALL-E / Stable Diffusion)
-[AI][TODO][MED] Add /tldr - AI-powered TL;DR of a long message or thread
-[AI][TODO][MED] Add /ai_persona - admin: set a custom AI personality for the server
-[AI][TODO][MED] Add AI-powered smart auto-moderation (toxicity + context analysis) — enhance existing automod
-[AI][TODO][MED] Add /chat - open a persistent AI chat thread (memory across messages)
+[AI][TODO][MEDIUM] Add /ask - ask the AI anything (context-aware, uses OpenAI)
+[AI][TODO][MEDIUM] Add /imagine - generate images via AI (DALL-E / Stable Diffusion)
+[AI][TODO][MEDIUM] Add /tldr - AI-powered TL;DR of a long message or thread
+[AI][TODO][MEDIUM] Add /ai_persona - admin: set a custom AI personality for the server
+[AI][TODO][MEDIUM] Add AI-powered smart auto-moderation (toxicity + context analysis) — enhance existing automod
+[AI][TODO][MEDIUM] Add /chat - open a persistent AI chat thread (memory across messages)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -248,11 +250,11 @@
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 🌍 Web Dashboard
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[WEB][TODO][MED] Build web dashboard for bot configuration (FastAPI + React/Next.js)
-[WEB][TODO][MED] Add OAuth2 login with Discord
-[WEB][TODO][MED] Add Server selector + per-server settings management
-[WEB][TODO][MED] Add Embed builder visual editor on web
-[WEB][TODO][MED] Add Logs viewer on web
+[WEB][TODO][MEDIUM] Build web dashboard for bot configuration (FastAPI + React/Next.js)
+[WEB][TODO][MEDIUM] Add OAuth2 login with Discord
+[WEB][TODO][MEDIUM] Add Server selector + per-server settings management
+[WEB][TODO][MEDIUM] Add Embed builder visual editor on web
+[WEB][TODO][MEDIUM] Add Logs viewer on web
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
