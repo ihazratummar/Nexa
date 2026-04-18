@@ -14,7 +14,6 @@ class Listener(commands.Cog):
         """
         Listens for channel creation events and add mute roles
         """
-
         """Add mute role to channel"""
         await ModerationService.apply_mute_role_to_single_channel(guild=channel.guild, channel=channel)
 

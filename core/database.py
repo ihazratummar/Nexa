@@ -73,4 +73,8 @@ class Database:
     def user(cls):
         return cls.get_db().user
 
+    @classmethod
+    def moderation_logs(cls):
+        return cls.get_db().moderation_logs
+
 
