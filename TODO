@@ -14,7 +14,6 @@
 [MOD][DONE][HIGH] Add /unmute - remove temporarily mute from a user and add user's previous roles
 [MOD][DONE][HIGH] Add /warn - warn a user (stores in DB with reason + timestamp)
 [MOD][DONE][HIGH] Add /warnings - view all warnings for a user
-[MOD][TODO][HIGH] Add /clearwarns - clear all warnings for a user
 [MOD][TODO][HIGH] Add /lock - lock a text channel (deny @everyone send_messages)
 [MOD][TODO][HIGH] Add /unlock - unlock a text channel
 [MOD][DONE][HIGH] Add /slowmode - set slowmode delay for a channel
