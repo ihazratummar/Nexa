@@ -395,6 +395,22 @@ categories:
         output: "Confirmation that slowmode has been set or disabled for the target channel."
         permissions: "Administrator"
 
+      - name: "/warn"
+        description: "Issue a formal warning to a member and track their offense history"
+        usage: "/warn member:<member> reason:[text]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The user to warn"
+            required: true
+          - name: "reason"
+            type: "string"
+            description: "Reason for the warning"
+            required: false
+            example: "Spamming in general channel"
+        output: "An embed confirmation of the warning, a DM to the user, and logging to the mod-log channel. Users are automatically muted on their 3rd warning."
+        permissions: "Administrator"
+
   - name: "Automod"
     id: "automod"
     emoji: "🤖"

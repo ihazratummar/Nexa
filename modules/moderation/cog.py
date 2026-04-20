@@ -16,6 +16,7 @@ from modules.Automod.services import AutoModServices
 from modules.error.custom_errors import GenericError
 from modules.guild.services import GuildService
 from modules.moderation.services import ModerationService
+from modules.moderation.ui import warning_embed, DeleteWarningsLogsUi
 
 
 class ModerationCommandsCog(commands.Cog):
@@ -534,6 +535,37 @@ class ModerationCommandsCog(commands.Cog):
         except Exception as e:
             logger.error(f"Failed to warn: {e}")
             await interaction.followup.send(f"An error occurred while processing the warning: {e}", ephemeral=True)
+
+    @app_commands.command(name="warnings", description="Shows warnings for a user")
+    @app_commands.guild_only()
+    @app_commands.describe()
+    async def warnings(
+            self,
+            interaction: discord.Interaction,
+            member: discord.Member = None,
+    ):
+        """Get all warnings for a user"""
+        await interaction.response.defer()
+        try:
+            if member is None:
+                member = interaction.user
+
+            logs = await ModerationService.get_offense_logs(
+                guild_id=interaction.guild.id,
+                offender_id= member.id
+            )
+
+            embed = await warning_embed(
+                guild=interaction.guild,
+                warning_logs= logs,
+                offender= member
+            )
+            view = DeleteWarningsLogsUi(offender=member, logs= logs)
+            await interaction.followup.send(view =view, embed= embed)
+        except Exception as e:
+            logger.error(f"Failed to get warnings: {e}")
+            await interaction.followup.send(f"An error occurred while processing the warnings: {e}", ephemeral=True)
+
 
 
 async def setup(bot):
