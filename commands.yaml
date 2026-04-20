@@ -411,6 +411,17 @@ categories:
         output: "An embed confirmation of the warning, a DM to the user, and logging to the mod-log channel. Users are automatically muted on their 3rd warning."
         permissions: "Administrator"
 
+      - name: "/warnings"
+        description: "View the warning history for yourself or another member"
+        usage: "/warnings member:[member]"
+        args:
+          - name: "member"
+            type: "member"
+            description: "The member whose warnings you want to view"
+            required: false
+        output: "An embed listing all active warnings, including reasons and dates. Provides an interactive UI to manage or clear warnings for authorized moderators."
+        permissions: "everyone"
+
   - name: "Automod"
     id: "automod"
     emoji: "🤖"
