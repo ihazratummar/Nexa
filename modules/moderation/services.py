@@ -344,3 +344,33 @@ class ModerationService:
             logger.error(f"Failed to resolve moderation logs: {e}")
             return 0
 
+    @classmethod
+    async def get_offense_logs(
+            cls,
+            guild_id: int,
+            offender_id: int
+    ) -> Optional[List[ModerationLogModel]]:
+        try:
+            collection = cls.get_moderation_logs_collection()
+
+            if collection is None:
+                return None
+
+            moderation_logs = await collection.find(
+                {
+                    "guild_id": guild_id,
+                    "offender_id": offender_id,
+                    "action_type": "Warn",
+                    "resolved": False
+                }
+            ).to_list(None)
+
+            if not moderation_logs:
+                return None
+
+            return [ ModerationLogModel(**logs) for logs in moderation_logs]
+        except Exception as e:
+            logger.error(f"Failed to get moderation logs: {e}")
+
+
+
