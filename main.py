@@ -14,5 +14,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     except Exception as e:
-        print(f"Critical error running bot: {e}")\
+        print(f"Critical error running bot: {e}")
 

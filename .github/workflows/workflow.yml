@@ -1,0 +1,74 @@
+name: Build and Deploy Nexa Bot
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/nexa-bot:latest
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+
+    env:
+      CONTAINER: Nexa
+      ENV_FILE: /home/envs/nexa.env
+
+    steps:
+      - name: Verify ENV file
+        run: |
+          if [ ! -f ${{ env.ENV_FILE }} ]; then
+            echo "❌ Missing nexa.env at ${{ env.ENV_FILE }}"
+            exit 1
+          fi
+          echo "✅ ENV file verified"
+
+      - name: Pull latest Docker image
+        run: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nexa-bot:latest
+
+      - name: Stop and remove existing container
+        run: |
+          docker stop ${{ env.CONTAINER }} || true
+          docker rm ${{ env.CONTAINER }} || true
+
+      - name: Run new container
+        run: |
+          docker run -d \
+            --name ${{ env.CONTAINER }} \
+            --network custom_bridge \
+            --env-file ${{ env.ENV_FILE }} \
+            --restart unless-stopped \
+            ${{ secrets.DOCKERHUB_USERNAME }}/nexa-bot:latest
+          echo "🚀 Nexa Bot deployed successfully"
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          docker ps | grep ${{ env.CONTAINER }}
+          docker logs --tail 20 ${{ env.CONTAINER }}
+
+      - name: On failure — fetch logs
+        if: failure()
+        run: |
+          echo "❌ Deployment failed — fetching logs..."
+          docker logs ${{ env.CONTAINER }} || true
